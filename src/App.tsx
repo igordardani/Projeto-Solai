@@ -62,6 +62,17 @@ import { auth, db, handleFirestoreError, OperationType } from "./lib/firebase";
 import { UserEntry, UserSettings } from "./types";
 import { cn } from "./lib/utils";
 
+const formatMonths = (totalMonths: number) => {
+  if (isNaN(totalMonths)) return "N/A";
+  const years = Math.floor(totalMonths / 12);
+  const months = Math.floor(totalMonths % 12);
+  const parts = [];
+  if (years > 0) parts.push(`${years} ${years === 1 ? 'Ano' : 'Anos'}`);
+  if (months > 0 || (years === 0 && totalMonths > 0)) parts.push(`${months} ${months === 1 ? 'Mês' : 'Meses'}`);
+  if (totalMonths === 0) return "0 Meses";
+  return parts.join(' e ');
+};
+
 // --- Components ---
 
 const Button = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline', size?: 'sm' | 'md' | 'lg' }>(
@@ -108,12 +119,15 @@ const StatCard = ({ title, value, icon: Icon, trend, trendColor, onTrendClick, v
     variant === 'emerald' ? "bg-emerald-500/10 border-emerald-500/20" : ""
   )}>
     <div className="flex justify-between items-start mb-1">
-      <span className={cn(
-        "text-[10px] font-bold uppercase tracking-wider",
-        variant === 'emerald' ? "text-emerald-400" : "text-slate-400"
-      )}>
-        {title}
-      </span>
+      <div className="flex items-center gap-2">
+        <Icon size={14} className={variant === 'emerald' ? "text-emerald-400" : "text-slate-400"} />
+        <span className={cn(
+          "text-[10px] font-bold uppercase tracking-wider",
+          variant === 'emerald' ? "text-emerald-400" : "text-slate-400"
+        )}>
+          {title}
+        </span>
+      </div>
       {trend && (
         <span 
           onClick={onTrendClick}
@@ -225,7 +239,8 @@ export default function App() {
   // Initialize Gemini AI
   const aiRef = useRef<any>(null);
   if (!aiRef.current) {
-    aiRef.current = new GoogleGenAI({ apiKey: (process.env.GEMINI_API_KEY as string) });
+    const apiKey = typeof process !== 'undefined' ? process.env.GEMINI_API_KEY : '';
+    aiRef.current = new GoogleGenAI({ apiKey: apiKey || "" });
   }
 
   useEffect(() => {
@@ -370,6 +385,26 @@ export default function App() {
   };
 
   const handleLogout = () => signOut(auth);
+
+  const investmentValue = settings?.investmentValue || 14000;
+  const totalRecovered = entries.reduce((sum, entry) => sum + (entry.discountValue || 0), 0);
+  const remainingValue = Math.max(0, investmentValue - totalRecovered);
+  const profitValue = Math.max(0, totalRecovered - investmentValue);
+  const progressPercent = investmentValue > 0 ? Math.min(100, (totalRecovered / investmentValue) * 100) : 0;
+
+  const averageDiscount = totalRecovered / (entries.length || 1);
+  const estimatedMonthsRemaining = averageDiscount > 0 ? remainingValue / averageDiscount : 0;
+
+  const paybackInfo = useMemo(() => {
+    let cumulative = 0;
+    for (let i = 0; i < entries.length; i++) {
+      cumulative += (entries[i].discountValue || 0);
+      if (cumulative >= investmentValue) {
+        return { reached: true, months: i + 1 };
+      }
+    }
+    return { reached: false, months: 0 };
+  }, [entries, investmentValue]);
 
   const handleUpdateEntry = async (id: string) => {
     if (!user) return;
@@ -596,12 +631,6 @@ export default function App() {
     );
   }
 
-  const investmentValue = settings?.investmentValue || 14000;
-  const totalRecovered = entries.reduce((sum, entry) => sum + entry.discountValue, 0);
-  const remainingValue = Math.max(0, investmentValue - totalRecovered);
-  const profitValue = Math.max(0, totalRecovered - investmentValue);
-  const progressPercent = Math.min(100, (totalRecovered / investmentValue) * 100);
-
   return (
     <div className="min-h-screen bg-[#0a0f18] text-slate-300 font-sans p-4 sm:p-8">
       {/* Header */}
@@ -676,11 +705,24 @@ export default function App() {
           />
 
           <StatCard 
-            title="Saldos & Meses" 
-            value={`${entries.length} Meses`} 
+            title="Estimativa de Payback" 
+            value={remainingValue > 0 
+              ? `Faltam ~${formatMonths(Math.ceil(estimatedMonthsRemaining))}` 
+              : paybackInfo.reached 
+                ? `Atingido em ${formatMonths(paybackInfo.months)}`
+                : "Atingido!"
+            } 
+            icon={TrendingUp}
+            trend={remainingValue > 0 ? "Falta" : "Concluído"}
+            trendColor={remainingValue > 0 ? "bg-amber-500/10 text-amber-500" : "bg-emerald-500/10 text-emerald-500"}
+          />
+
+          <StatCard 
+            title="Tempo de Projeto" 
+            value={formatMonths(entries.length)} 
             icon={Calendar}
             trend={remainingValue === 0 ? "Pago!" : "Em progresso"}
-            trendColor={remainingValue === 0 ? "bg-emerald-100 text-emerald-800" : "bg-amber-100 text-amber-800"}
+            trendColor={remainingValue === 0 ? "bg-emerald-500/10 text-emerald-400" : "bg-amber-500/10 text-amber-400"}
           />
 
           {/* Chart Card */}
