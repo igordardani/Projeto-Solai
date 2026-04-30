@@ -12,6 +12,7 @@ import {
   ChevronRight,
   FileText,
   Activity,
+  Sun,
   History,
   LayoutDashboard,
   RefreshCw,
@@ -94,7 +95,7 @@ const Button = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HT
 
 const Card = ({ children, className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div 
-    className={cn("bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm", className)}
+    className={cn("bg-slate-900/50 border border-slate-800 rounded-2xl overflow-hidden shadow-xl backdrop-blur-sm", className)}
     {...props}
   >
     {children}
@@ -103,13 +104,13 @@ const Card = ({ children, className, ...props }: React.HTMLAttributes<HTMLDivEle
 
 const StatCard = ({ title, value, icon: Icon, trend, trendColor, onTrendClick, variant = 'white' }: { title: string, value: string, icon: any, trend?: string, trendColor?: string, onTrendClick?: () => void, variant?: 'white' | 'emerald' }) => (
   <Card className={cn(
-    "p-5 flex flex-col justify-center",
-    variant === 'emerald' ? "bg-emerald-50 border-emerald-100" : "bg-white"
+    "p-5 flex flex-col justify-center transition-all duration-300 hover:border-emerald-500/30",
+    variant === 'emerald' ? "bg-emerald-500/10 border-emerald-500/20" : ""
   )}>
     <div className="flex justify-between items-start mb-1">
       <span className={cn(
         "text-[10px] font-bold uppercase tracking-wider",
-        variant === 'emerald' ? "text-emerald-700" : "text-slate-400"
+        variant === 'emerald' ? "text-emerald-400" : "text-slate-400"
       )}>
         {title}
       </span>
@@ -118,7 +119,7 @@ const StatCard = ({ title, value, icon: Icon, trend, trendColor, onTrendClick, v
           onClick={onTrendClick}
           className={cn(
             "text-[10px] font-bold px-2 py-0.5 rounded-full cursor-pointer transition-opacity hover:opacity-80",
-            trendColor || (variant === 'emerald' ? "bg-emerald-100 text-emerald-800" : "bg-emerald-50 text-emerald-600")
+            trendColor || (variant === 'emerald' ? "bg-emerald-500/20 text-emerald-400" : "bg-emerald-500/10 text-emerald-400")
           )}
         >
           {trend}
@@ -127,7 +128,7 @@ const StatCard = ({ title, value, icon: Icon, trend, trendColor, onTrendClick, v
     </div>
     <h3 className={cn(
       "text-2xl font-black italic",
-      variant === 'emerald' ? "text-emerald-800" : "text-slate-700"
+      variant === 'emerald' ? "text-white" : "text-slate-100"
     )}>
       {value}
     </h3>
@@ -142,11 +143,11 @@ const CircularProgress = ({ percent, remaining }: { percent: number, remaining: 
   return (
     <div className="flex flex-col justify-between h-full">
       <div>
-        <h3 className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-6">Progresso de Payback</h3>
+        <h3 className="text-white text-xs font-black uppercase italic tracking-widest mb-6 underline decoration-emerald-500/50 decoration-2 underline-offset-4">Progresso de Payback</h3>
         <div className="relative w-40 h-40 mx-auto">
           <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
             <circle
-              className="text-slate-100"
+              className="text-slate-800"
               strokeWidth="3"
               fill="none"
               stroke="currentColor"
@@ -168,17 +169,17 @@ const CircularProgress = ({ percent, remaining }: { percent: number, remaining: 
             />
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center rotate-0">
-            <span className="text-3xl font-black text-slate-800">{percent.toFixed(1)}%</span>
-            <span className="text-[10px] text-slate-400 font-bold uppercase">Recuperado</span>
+            <span className="text-3xl font-black text-white">{percent.toFixed(1)}%</span>
+            <span className="text-[10px] text-slate-300 font-bold uppercase">Recuperado</span>
           </div>
         </div>
       </div>
-      <div className="border-t border-slate-50 pt-4 mt-4">
-        <div className="flex justify-between text-xs mb-1.5">
-          <span className="text-slate-500 font-medium">Faltam</span>
-          <span className="font-bold text-slate-700">{remaining}</span>
+      <div className="border-t border-slate-800 pt-4 mt-6">
+        <div className="flex justify-between items-end mb-1.5">
+          <span className="text-white font-black italic uppercase tracking-[0.2em] text-[10px]">Faltam</span>
+          <span className="font-bold text-slate-200">{remaining}</span>
         </div>
-        <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+        <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
           <div 
             className="bg-emerald-500 h-full transition-all duration-1000" 
             style={{ width: `${percent}%` }}
@@ -598,21 +599,21 @@ export default function App() {
   const progressPercent = Math.min(100, (totalRecovered / investmentValue) * 100);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans p-4 sm:p-8">
+    <div className="min-h-screen bg-[#0a0f18] text-slate-300 font-sans p-4 sm:p-8">
       {/* Header */}
-      <header className="max-w-6xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-4">
+      <header className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <Activity className="text-emerald-600" size={24} />
-            <h1 className="text-2xl font-bold tracking-tight text-slate-800">SolarROI</h1>
+            <Sun className="text-emerald-500" size={24} />
+            <h1 className="text-2xl font-bold tracking-tight text-white uppercase italic">Solai</h1>
           </div>
-          <p className="text-slate-500 text-sm font-medium">Monitoramento de Retorno Energético • {user.displayName}</p>
+          <p className="text-slate-400 text-sm font-medium">Monitoramento de Retorno Energético • {user.displayName}</p>
         </div>
         <div className="flex gap-4 w-full sm:w-auto">
-          <div className="bg-white border border-slate-200 px-4 py-2 rounded-xl shadow-sm flex-1 sm:flex-none">
-            <span className="text-[10px] text-slate-400 block uppercase font-bold tracking-wider">Investimento</span>
+          <div className="bg-slate-900 border border-slate-800 px-4 py-2 rounded-xl shadow-sm flex-1 sm:flex-none hover:border-emerald-500/30 transition-colors">
+            <span className="text-[10px] text-slate-400 block uppercase font-bold tracking-wider underline decoration-emerald-500/30 decoration-2 underline-offset-4">Investimento</span>
             <span 
-              className="text-lg font-bold text-slate-700 cursor-pointer hover:text-emerald-600 transition-colors"
+              className="text-lg font-black italic text-white cursor-pointer hover:text-emerald-500 transition-colors"
               onClick={() => {
                 setNewInvestment(investmentValue.toString());
                 setIsSettingsOpen(true);
@@ -651,9 +652,9 @@ export default function App() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+      <main className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Column: Stats and Charts */}
-        <div className="lg:col-span-4 space-y-4">
+        <div className="lg:col-span-3 space-y-6">
           {/* Progress Card */}
           <Card className="p-6">
             <CircularProgress 
@@ -682,10 +683,10 @@ export default function App() {
           {/* Chart Card */}
           <Card 
             className={cn(
-              "p-6 flex flex-col gap-4 overflow-hidden transition-all duration-500 cursor-pointer group bg-white",
+              "p-6 flex flex-col gap-4 overflow-hidden transition-all duration-500 cursor-pointer group bg-slate-900/50",
               isChartExpanded 
-                ? "fixed top-[10%] left-[5%] right-[5%] bottom-[10%] z-50 shadow-2xl border-emerald-100" 
-                : "relative hover:border-emerald-200"
+                ? "fixed top-[10%] left-[5%] right-[5%] bottom-[10%] z-50 shadow-2xl border-slate-800" 
+                : "relative hover:border-emerald-500/30"
             )}
             onClick={() => setIsChartExpanded(!isChartExpanded)}
           >
@@ -693,24 +694,24 @@ export default function App() {
               <div className="flex items-center gap-3">
                 <div className={cn(
                   "flex items-center justify-center rounded-xl transition-all",
-                  isChartExpanded ? "w-12 h-12 bg-emerald-500 text-white" : "w-8 h-8 bg-emerald-50 text-emerald-600"
+                  isChartExpanded ? "w-12 h-12 bg-emerald-500 text-white shadow-lg shadow-emerald-500/20" : "w-8 h-8 bg-emerald-500/10 text-emerald-400"
                 )}>
                   <Activity size={isChartExpanded ? 24 : 16} />
                 </div>
                 <div>
                   <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none">Crescimento de Retorno</p>
-                  <p className={cn("font-bold text-slate-800 uppercase tracking-tight", isChartExpanded ? "text-xl" : "text-xs")}>
+                  <p className={cn("font-bold text-white uppercase tracking-tight", isChartExpanded ? "text-xl" : "text-xs")}>
                     {isChartExpanded ? "Análise Estratégica de Payback" : "Evolução do Investimento"}
                   </p>
                 </div>
               </div>
               {!isChartExpanded && (
-                <div className="text-[10px] text-emerald-500 font-bold flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all bg-emerald-50 px-3 py-1.5 rounded-full">
+                <div className="text-[10px] text-emerald-400 font-bold flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-full">
                   VER DETALHES <Plus size={12} />
                 </div>
               )}
               {isChartExpanded && (
-                <button className="p-2 hover:bg-slate-100 rounded-full text-slate-400 transition-colors">
+                <button className="p-2 hover:bg-slate-800 rounded-full text-slate-400 transition-colors">
                   <X size={24} />
                 </button>
               )}
@@ -730,7 +731,7 @@ export default function App() {
                     <CartesianGrid 
                       strokeDasharray="4 4" 
                       vertical={false} 
-                      stroke={isChartExpanded ? "#f1f5f9" : "transparent"} 
+                      stroke={isChartExpanded ? "rgba(255, 255, 255, 0.05)" : "transparent"} 
                     />
                     
                     <XAxis 
@@ -754,14 +755,14 @@ export default function App() {
                       cursor={{ stroke: '#10b981', strokeWidth: 1, strokeDasharray: '5 5' }}
                       contentStyle={{ 
                         borderRadius: '20px', 
-                        border: 'none', 
-                        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)', 
+                        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)',
                         padding: '16px',
-                        background: 'rgba(255, 255, 255, 0.95)',
-                        backdropFilter: 'blur(4px)'
+                        background: 'rgba(15, 23, 42, 0.9)',
+                        backdropFilter: 'blur(8px)'
                       }}
-                      itemStyle={{ fontSize: '12px', fontWeight: 600 }}
-                      labelStyle={{ marginBottom: '8px', color: '#64748b', fontWeight: 700, fontSize: '10px', textTransform: 'uppercase' }}
+                      itemStyle={{ fontSize: '12px', fontWeight: 600, color: '#f8fafc' }}
+                      labelStyle={{ marginBottom: '8px', color: '#94a3b8', fontWeight: 700, fontSize: '10px', textTransform: 'uppercase' }}
                       formatter={(value: any, name: string) => [
                         new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value), 
                         name === 'recovered' ? 'Acumulado' : 'Investimento'
@@ -803,21 +804,21 @@ export default function App() {
             
             {isChartExpanded && (
               <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
-                <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
-                  <p className="text-[10px] text-slate-400 font-bold uppercase mb-1">Média Mensal</p>
-                  <p className="text-xl font-bold text-slate-800">
+                <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800">
+                  <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">Média Mensal</p>
+                  <p className="text-xl font-bold text-slate-100 italic">
                     {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalRecovered / (entries.length || 1))}
                   </p>
                 </div>
-                <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-100">
-                  <p className="text-[10px] text-emerald-600 font-bold uppercase mb-1">Total Recuperado</p>
-                  <p className="text-xl font-bold text-emerald-700">
+                <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
+                  <p className="text-[10px] text-emerald-400 font-bold uppercase mb-1">Total Recuperado</p>
+                  <p className="text-xl font-bold text-emerald-500 italic">
                     {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalRecovered)}
                   </p>
                 </div>
-                <div className="p-4 rounded-2xl bg-rose-50 border border-rose-100">
-                  <p className="text-[10px] text-rose-500 font-bold uppercase mb-1">Falta para Payback</p>
-                  <p className="text-xl font-bold text-rose-700">
+                <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20">
+                  <p className="text-[10px] text-rose-400 font-bold uppercase mb-1">Falta para Payback</p>
+                  <p className="text-xl font-bold text-rose-500 italic">
                     {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(remainingValue)}
                   </p>
                 </div>
@@ -827,7 +828,7 @@ export default function App() {
 
           {isChartExpanded && (
             <div 
-              className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 transition-all focus:outline-none"
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-all focus:outline-none"
               onClick={() => setIsChartExpanded(false)}
             />
           )}
@@ -920,25 +921,24 @@ export default function App() {
         </div>
 
         {/* Right Column: History Table */}
-        <div className="lg:col-span-8">
-          <Card className="flex flex-col min-h-[600px]">
-            <div className="p-5 border-b border-slate-100 flex justify-between items-center bg-white sticky top-0 z-10">
-              <h3 className="text-slate-800 font-bold">Histórico de Lançamentos</h3>
-              <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-1 rounded font-bold uppercase tracking-wider">Todos os registros</span>
+        <div className="lg:col-span-9">
+          <Card className="flex flex-col min-h-[1000px]">
+            <div className="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-900/50 sticky top-0 z-10 backdrop-blur-md">
+              <h3 className="text-white font-black tracking-tight uppercase italic text-lg">Histórico de Lançamentos</h3>
             </div>
-            <div className="flex-1 overflow-auto text-[11px] sm:text-sm">
+            <div className="flex-1 overflow-auto text-xs sm:text-base">
               <table className="w-full text-left">
-                <thead className="sticky top-0 bg-slate-50 text-slate-400 uppercase text-[10px] font-bold z-10 border-b border-slate-100">
+                <thead className="sticky top-0 bg-slate-900 text-slate-200 uppercase text-[11px] font-black z-10 border-b border-slate-800">
                   <tr>
-                    <th className="px-6 py-4">Ref.</th>
-                    <th className="px-6 py-4 text-right">Valor Conta</th>
-                    <th className="px-6 py-4 text-right">Desconto</th>
-                    <th className="px-6 py-4 text-right">Saldo Restante</th>
-                    <th className="px-6 py-4 text-center">Fatura</th>
-                    <th className="px-6 py-4 text-center">Ações</th>
+                    <th className="px-5 py-5 min-w-[80px]">Ref.</th>
+                    <th className="px-5 py-5 text-right min-w-[120px]">Valor Conta</th>
+                    <th className="px-5 py-5 text-right min-w-[120px]">Desconto</th>
+                    <th className="px-5 py-5 text-right min-w-[140px]">Saldo Restante</th>
+                    <th className="px-5 py-5 text-center min-w-[110px]">Fatura</th>
+                    <th className="px-5 py-5 text-center min-w-[110px]">Ações</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50">
+                <tbody className="divide-y divide-slate-800/50">
                   {entries.length > 0 ? (() => {
                     let runningBalance = investmentValue;
                     const rowsWithBalance = entries.map(entry => {
@@ -947,54 +947,60 @@ export default function App() {
                     });
                     
                     return rowsWithBalance.reverse().map((entry) => (
-                      <tr key={entry.id} className="hover:bg-slate-50/50 transition-colors group">
-                        <td className="px-6 py-4 font-semibold text-slate-700">
+                      <tr key={entry.id} className="hover:bg-slate-800/40 transition-all group border-l-2 border-l-transparent hover:border-l-emerald-500/50">
+                        <td className="px-5 py-5 font-black italic text-white text-base whitespace-nowrap">
                           {entry.month.toString().padStart(2, '0')}/{entry.year}
                         </td>
-                        <td className="px-6 py-4 text-right text-slate-500">
+                        <td className="px-5 py-5 text-right text-slate-100 font-mono text-base font-medium">
                           {editingId === entry.id ? (
-                            <input 
-                              type="number" 
-                              className="w-16 sm:w-24 px-1 py-1 border rounded text-right text-xs focus:ring-1 focus:ring-blue-500 outline-none"
-                              value={editForm.totalBill}
-                              onChange={(e) => setEditForm({ ...editForm, totalBill: Number(e.target.value) })}
-                            />
-                          ) : (
-                            entry.totalBill ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(entry.totalBill) : '-'
-                          )}
-                        </td>
-                        <td className="px-6 py-4 text-right font-bold text-emerald-600">
-                          {editingId === entry.id ? (
-                            <div className="flex items-center justify-end gap-1">
-                              <span className="text-xs">-</span>
+                            <div className="relative inline-block">
+                              <span className="absolute left-1.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-500 font-bold italic">R$</span>
                               <input 
                                 type="number" 
-                                className="w-16 sm:w-24 px-1 py-1 border rounded text-right text-emerald-600 text-xs focus:ring-1 focus:ring-emerald-500 outline-none"
-                                value={editForm.discountValue}
-                                onChange={(e) => setEditForm({ ...editForm, discountValue: Number(e.target.value) })}
+                                className="w-20 sm:w-28 pl-6 pr-1 py-1.5 bg-slate-950 border border-slate-700 rounded-md text-right text-sm text-white focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all shadow-inner [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                value={editForm.totalBill}
+                                onChange={(e) => setEditForm({ ...editForm, totalBill: Number(e.target.value) })}
+                                autoFocus
                               />
+                            </div>
+                          ) : (
+                            entry.totalBill ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(entry.totalBill) : '—'
+                          )}
+                        </td>
+                        <td className="px-5 py-5 text-right font-black italic text-emerald-400 font-mono text-base tracking-tight">
+                          {editingId === entry.id ? (
+                            <div className="flex items-center justify-end">
+                              <div className="relative inline-block">
+                                <span className="absolute left-1.5 top-1/2 -translate-y-1/2 text-[10px] text-emerald-600 font-bold italic">-R$</span>
+                                <input 
+                                  type="number" 
+                                  className="w-20 sm:w-28 pl-8 pr-1 py-1.5 bg-slate-950 border border-emerald-500/30 rounded-md text-right text-emerald-400 text-sm focus:ring-2 focus:ring-emerald-500/50 outline-none font-black italic transition-all shadow-lg shadow-emerald-500/10 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                  value={editForm.discountValue}
+                                  onChange={(e) => setEditForm({ ...editForm, discountValue: Number(e.target.value) })}
+                                />
+                              </div>
                             </div>
                           ) : (
                             `- ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(entry.discountValue)}`
                           )}
                         </td>
-                        <td className="px-6 py-4 text-right text-slate-700 font-medium">
+                        <td className="px-5 py-5 text-right text-white font-black italic font-mono text-base shadow-sm">
                           {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(entry.balanceAtTime)}
                         </td>
-                        <td className="px-6 py-4 text-center">
+                        <td className="px-5 py-5 text-center">
                           {entry.driveLink ? (
                             <a 
                               href={entry.driveLink}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors text-[10px] font-bold"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-all text-[10px] font-black border border-blue-500/20 uppercase tracking-tight shadow-sm"
                             >
-                              <HardDrive size={10} />
-                              DRIVE
+                              <HardDrive size={12} />
+                              Drive
                             </a>
                           ) : entry.pdfBase64 ? (
                             <button 
-                              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors text-[10px] font-bold"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-all text-[10px] font-black border border-emerald-500/20 uppercase tracking-tight shadow-sm"
                               onClick={() => {
                                 const link = document.createElement('a');
                                 link.href = entry.pdfBase64!;
@@ -1003,74 +1009,77 @@ export default function App() {
                               }}
                             >
                               <FileText size={12} />
-                              BAIXAR
+                              Baixar
                             </button>
                           ) : (
-                            <span className="text-[10px] text-slate-400 italic">Indisponível</span>
+                            <span className="text-[10px] text-slate-500 font-bold italic uppercase tracking-widest">Indisponível</span>
                           )}
                         </td>
-                        <td className="px-6 py-4 text-center">
-                          <div className="flex items-center justify-center gap-1">
+                        <td className="px-5 py-5 text-center">
+                          <div className="flex items-center justify-center gap-2">
                             {editingId === entry.id ? (
-                               <div className="flex items-center gap-1 animate-in fade-in zoom-in duration-200">
+                               <div className="flex items-center gap-1.5 animate-in fade-in zoom-in duration-200">
                                <button 
                                  onClick={() => handleUpdateEntry(entry.id)}
-                                 className="bg-emerald-500 text-white p-1.5 rounded-lg hover:bg-emerald-600 transition-colors shadow-sm"
+                                 className="bg-emerald-500 text-white p-2 rounded-lg hover:bg-emerald-600 transition-all shadow-lg active:scale-95"
                                  title="Salvar"
                                >
-                                 <Check size={14} />
+                                 <Check size={16} />
                                </button>
                                <button 
                                  onClick={() => setEditingId(null)}
-                                 className="bg-slate-200 text-slate-600 p-1.5 rounded-lg hover:bg-slate-300 transition-colors shadow-sm"
+                                 className="bg-slate-700 text-slate-200 p-2 rounded-lg hover:bg-slate-600 transition-all shadow-md active:scale-95"
                                  title="Cancelar"
                                >
-                                 <X size={14} />
+                                 <X size={16} />
                                </button>
                              </div>
                             ) : deletingId === entry.id ? (
-                              <div className="flex items-center gap-1 animate-in fade-in zoom-in duration-200">
+                              <div className="flex items-center gap-1.5 animate-in fade-in zoom-in duration-200">
                                 <button 
                                   onClick={() => handleDeleteEntry(entry.id)}
-                                  className="bg-rose-500 text-white p-1.5 rounded-lg hover:bg-rose-600 transition-colors shadow-sm"
+                                  className="bg-rose-500 text-white p-2 rounded-lg hover:bg-rose-600 transition-all shadow-lg active:scale-95"
                                   title="Confirmar exclusão"
                                 >
-                                  <Check size={14} />
+                                  <Check size={16} />
                                 </button>
                                 <button 
                                   onClick={() => setDeletingId(null)}
-                                  className="bg-slate-200 text-slate-600 p-1.5 rounded-lg hover:bg-slate-300 transition-colors shadow-sm"
+                                  className="bg-slate-700 text-slate-200 p-2 rounded-lg hover:bg-slate-600 transition-all shadow-md active:scale-95"
                                   title="Cancelar"
                                 >
-                                  <X size={14} />
+                                  <X size={16} />
                                 </button>
                               </div>
                             ) : (
-                              <div className="flex items-center gap-1">
+                              <div className="flex items-center gap-1 opacity-40 group-hover:opacity-100 transition-all">
                                 <button 
                                   onClick={() => startEditing(entry)}
-                                  className="text-slate-300 hover:text-blue-500 transition-colors p-1"
+                                  className="text-slate-300 hover:text-white hover:bg-slate-800 transition-all p-2 rounded-lg"
                                   title="Editar valores"
                                 >
-                                  <Pencil size={16} />
+                                  <Pencil size={18} />
                                 </button>
                                 <button 
                                   onClick={() => setDeletingId(entry.id)}
-                                  className="text-slate-300 hover:text-rose-500 transition-colors p-1"
+                                  className="text-slate-300 hover:text-rose-500 hover:bg-rose-500/10 transition-all p-2 rounded-lg"
                                   title="Remover lançamento"
                                 >
-                                  <Trash2 size={16} />
+                                  <Trash2 size={18} />
                                 </button>
                               </div>
                             )}
                           </div>
-                      </td>
-                    </tr>
-                  ));
+                        </td>
+                      </tr>
+                    ));
                   })() : (
                     <tr>
-                      <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
-                        Nenhum lançamento encontrado.
+                      <td colSpan={6} className="px-6 py-20 text-center text-slate-600">
+                        <div className="flex flex-col items-center gap-4">
+                          <History size={48} className="opacity-10" />
+                          <p className="text-sm font-black uppercase italic tracking-[0.2em] opacity-40">Aguardando Lançamentos</p>
+                        </div>
                       </td>
                     </tr>
                   )}
@@ -1088,26 +1097,29 @@ export default function App() {
 
       {/* Simple Settings Modal */}
       {isSettingsOpen && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <Card className="max-w-md w-full p-6 animate-in fade-in zoom-in duration-200">
-            <h3 className="text-xl font-bold mb-4">Configurar Investimento</h3>
-            <p className="text-sm text-slate-500 mb-6">
-              Informe o valor total investido no projeto para cálculo do retorno.
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <Card className="max-w-md w-full p-8 animate-in fade-in zoom-in duration-300 border-slate-700 bg-slate-900 shadow-2xl">
+            <h3 className="text-xl font-bold mb-4 text-white uppercase italic tracking-tight">Configurar Investimento</h3>
+            <p className="text-sm text-slate-500 mb-8 leading-relaxed">
+              Informe o valor brute total investido no seu sistema fotovoltaico para que possamos calcular o tempo estimado de retorno.
             </p>
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-6">
               <div>
-                <label className="text-xs font-semibold text-slate-500 uppercase">Valor (BRL)</label>
-                <input 
-                  type="number" 
-                  value={newInvestment}
-                  onChange={(e) => setNewInvestment(e.target.value)}
-                  className="w-full mt-1 px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-                  placeholder="Ex: 14000"
-                />
+                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 block">Valor do Projeto (BRL)</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold italic">R$</span>
+                  <input 
+                    type="number" 
+                    value={newInvestment}
+                    onChange={(e) => setNewInvestment(e.target.value)}
+                    className="w-full pl-12 pr-4 py-4 bg-slate-950 border border-slate-800 rounded-xl text-white font-black italic focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
+                    placeholder="Ex: 14000"
+                  />
+                </div>
               </div>
               <div className="flex gap-3 justify-end mt-4">
-                <Button variant="outline" onClick={() => setIsSettingsOpen(false)}>Cancelar</Button>
-                <Button onClick={handleUpdateSettings}>Salvar</Button>
+                <Button variant="outline" onClick={() => setIsSettingsOpen(false)} className="border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-white">Cancelar</Button>
+                <Button onClick={handleUpdateSettings} className="bg-emerald-600 hover:bg-emerald-700 px-8">Salvar Alterações</Button>
               </div>
             </div>
           </Card>
