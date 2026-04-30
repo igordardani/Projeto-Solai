@@ -599,6 +599,7 @@ export default function App() {
   const investmentValue = settings?.investmentValue || 14000;
   const totalRecovered = entries.reduce((sum, entry) => sum + entry.discountValue, 0);
   const remainingValue = Math.max(0, investmentValue - totalRecovered);
+  const profitValue = Math.max(0, totalRecovered - investmentValue);
   const progressPercent = Math.min(100, (totalRecovered / investmentValue) * 100);
 
   return (
@@ -805,7 +806,7 @@ export default function App() {
             </div>
             
             {isChartExpanded && (
-              <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
+              <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
                 <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800">
                   <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">Média Mensal</p>
                   <p className="text-xl font-bold text-slate-100 italic">
@@ -822,6 +823,12 @@ export default function App() {
                   <p className="text-[10px] text-rose-400 font-bold uppercase mb-1">Falta para Payback</p>
                   <p className="text-xl font-bold text-rose-500 italic">
                     {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(remainingValue)}
+                  </p>
+                </div>
+                <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20">
+                  <p className="text-[10px] text-blue-400 font-bold uppercase mb-1">Lucro Real (Pós-Payback)</p>
+                  <p className="text-xl font-bold text-blue-500 italic">
+                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(profitValue)}
                   </p>
                 </div>
               </div>
@@ -1108,8 +1115,8 @@ export default function App() {
         <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
           <Card className="max-w-md w-full p-8 animate-in fade-in zoom-in duration-300 border-slate-700 bg-slate-900 shadow-2xl">
             <h3 className="text-xl font-bold mb-4 text-white uppercase italic tracking-tight">Configurar Investimento</h3>
-            <p className="text-sm text-slate-500 mb-8 leading-relaxed">
-              Informe o valor brute total investido no seu sistema fotovoltaico para que possamos calcular o tempo estimado de retorno.
+            <p className="text-sm text-slate-300 mb-8 leading-relaxed">
+              Informe o valor bruto total investido no seu sistema fotovoltaico para que possamos calcular o tempo estimado de retorno.
             </p>
             <div className="flex flex-col gap-6">
               <div>
