@@ -569,26 +569,29 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
+      <div className="min-h-screen flex items-center justify-center bg-[#0a0f18]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div>
       </div>
     );
   }
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6 text-center">
-        <div className="mb-8 p-4 bg-emerald-50 rounded-2xl">
-          <Activity size={48} className="text-emerald-600" />
+      <div className="min-h-screen bg-[#0a0f18] flex flex-col items-center justify-center p-6 text-center">
+        <div className="mb-8 p-6 bg-emerald-500/10 rounded-3xl border border-emerald-500/20 shadow-2xl shadow-emerald-500/10">
+          <Sun size={64} className="text-emerald-500" />
         </div>
-        <h1 className="text-3xl font-bold text-slate-900 mb-2">Calculadora de Retorno Solar</h1>
-        <p className="text-slate-600 max-w-md mb-8">
+        <h1 className="text-5xl font-black text-white mb-3 uppercase italic tracking-tight">Solai</h1>
+        <p className="text-slate-400 max-w-md mb-10 text-base font-medium leading-relaxed">
           Acompanhe o retorno do seu investimento em energia solar de forma fácil e automática através das suas faturas.
         </p>
-        <Button onClick={handleLogin} size="lg" className="flex gap-2">
-          <LayoutDashboard size={20} />
+        <button 
+          onClick={handleLogin} 
+          className="flex items-center gap-3 bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-4 rounded-2xl font-black italic uppercase tracking-wider transition-all shadow-xl shadow-emerald-600/20 active:scale-95 group"
+        >
+          <LayoutDashboard size={20} className="group-hover:rotate-12 transition-transform" />
           Entrar com Google
-        </Button>
+        </button>
       </div>
     );
   }
@@ -669,7 +672,6 @@ export default function App() {
             value={new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalRecovered)} 
             icon={CheckCircle2}
             variant="emerald"
-            trend={`${progressPercent.toFixed(1)}%`}
           />
 
           <StatCard 
@@ -993,26 +995,32 @@ export default function App() {
                               href={entry.driveLink}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-all text-[10px] font-black border border-blue-500/20 uppercase tracking-tight shadow-sm"
+                              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-all text-xs font-black border border-blue-500/20 uppercase tracking-tight shadow-md"
                             >
-                              <HardDrive size={12} />
+                              <HardDrive size={14} />
                               Drive
                             </a>
                           ) : entry.pdfBase64 ? (
                             <button 
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-all text-[10px] font-black border border-emerald-500/20 uppercase tracking-tight shadow-sm"
+                              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-all text-xs font-black border border-emerald-500/20 uppercase tracking-tight shadow-md"
                               onClick={() => {
-                                const link = document.createElement('a');
-                                link.href = entry.pdfBase64!;
-                                link.download = entry.pdfName || `fatura-${entry.month}-${entry.year}.pdf`;
-                                link.click();
+                                const base64Data = entry.pdfBase64!.split(',')[1];
+                                const byteCharacters = atob(base64Data);
+                                const byteNumbers = new Array(byteCharacters.length);
+                                for (let i = 0; i < byteCharacters.length; i++) {
+                                  byteNumbers[i] = byteCharacters.charCodeAt(i);
+                                }
+                                const byteArray = new Uint8Array(byteNumbers);
+                                const file = new Blob([byteArray], { type: 'application/pdf' });
+                                const fileURL = URL.createObjectURL(file);
+                                window.open(fileURL, '_blank');
                               }}
                             >
-                              <FileText size={12} />
-                              Baixar
+                              <FileText size={14} />
+                              Visualizar
                             </button>
                           ) : (
-                            <span className="text-[10px] text-slate-500 font-bold italic uppercase tracking-widest">Indisponível</span>
+                            <span className="text-xs text-slate-400 font-black italic uppercase tracking-widest">Indisponível</span>
                           )}
                         </td>
                         <td className="px-5 py-5 text-center">
@@ -1052,17 +1060,17 @@ export default function App() {
                                 </button>
                               </div>
                             ) : (
-                              <div className="flex items-center gap-1 opacity-40 group-hover:opacity-100 transition-all">
+                              <div className="flex items-center gap-1 opacity-100 group-hover:opacity-100 transition-all">
                                 <button 
                                   onClick={() => startEditing(entry)}
-                                  className="text-slate-300 hover:text-white hover:bg-slate-800 transition-all p-2 rounded-lg"
+                                  className="text-slate-400 hover:text-white hover:bg-slate-800 transition-all p-2 rounded-lg"
                                   title="Editar valores"
                                 >
                                   <Pencil size={18} />
                                 </button>
                                 <button 
                                   onClick={() => setDeletingId(entry.id)}
-                                  className="text-slate-300 hover:text-rose-500 hover:bg-rose-500/10 transition-all p-2 rounded-lg"
+                                  className="text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 transition-all p-2 rounded-lg"
                                   title="Remover lançamento"
                                 >
                                   <Trash2 size={18} />
