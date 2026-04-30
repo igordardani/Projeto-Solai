@@ -1,0 +1,6 @@
+{
+  "name": "Calculadora de Retorno Solar",
+  "description": "Automatize o controle do seu projeto solar. Envie PDFs de contas de luz para extração automática de descontos, acompanhe o ROI e visualize o histórico de retorno.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

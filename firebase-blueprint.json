@@ -1,0 +1,42 @@
+{
+  "entities": {
+    "UserEntry": {
+      "title": "Registro de Retorno Solar",
+      "description": "Lançamento mensal de economia gerada pelo sistema solar",
+      "type": "object",
+      "properties": {
+        "month": { "type": "integer", "description": "Mês de referência (1-12)" },
+        "year": { "type": "integer", "description": "Ano de referência" },
+        "discountValue": { "type": "number", "description": "Valor do desconto GD II em Reais" },
+        "injectedkWh": { "type": "number", "description": "Energia injetada em kWh" },
+        "totalBill": { "type": "number", "description": "Valor total da conta em Reais" },
+        "pdfBase64": { "type": "string", "description": "Conteúdo do PDF em base64 (se pequeno)" },
+        "pdfName": { "type": "string", "description": "Nome do arquivo PDF" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" },
+        "userId": { "type": "string" }
+      },
+      "required": ["month", "year", "discountValue", "userId"]
+    },
+    "UserSettings": {
+      "title": "Configurações do Usuário",
+      "description": "Configurações globais como valor do investimento inicial",
+      "type": "object",
+      "properties": {
+        "investmentValue": { "type": "number", "description": "Valor total investido no projeto" },
+        "userId": { "type": "string" }
+      },
+      "required": ["investmentValue", "userId"]
+    }
+  },
+  "firestore": {
+    "users/{userId}/entries/{entryId}": {
+      "schema": "UserEntry",
+      "description": "Coleção de lançamentos mensais por usuário"
+    },
+    "users/{userId}/settings/main": {
+      "schema": "UserSettings",
+      "description": "Configuração principal do usuário"
+    }
+  }
+}

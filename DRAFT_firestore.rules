@@ -1,0 +1,73 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 64 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Validation patterns
+    function isValidUserEntry(data) {
+      return data.month is int && data.month >= 1 && data.month <= 12 &&
+             data.year is int && data.year >= 2000 &&
+             data.discountValue is number && data.discountValue >= 0 &&
+             (data.injectedkWh == null || data.injectedkWh is number) &&
+             (data.totalBill == null || data.totalBill is number) &&
+             (data.pdfBase64 == null || (data.pdfBase64 is string && data.pdfBase64.size() <= 1048576)) &&
+             (data.pdfName == null || (data.pdfName is string && data.pdfName.size() <= 256)) &&
+             data.userId == request.auth.uid;
+    }
+
+    function isValidUserSettings(data) {
+      return data.investmentValue is number && data.investmentValue >= 0 &&
+             data.userId == request.auth.uid;
+    }
+
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      
+      match /entries/{entryId} {
+        allow list: if isOwner(userId) && resource.data.userId == request.auth.uid;
+        allow get: if isOwner(userId);
+        allow create: if isOwner(userId) && 
+                        isValidUserEntry(incoming()) && 
+                        incoming().createdAt == request.time;
+        allow update: if isOwner(userId) && 
+                        isValidUserEntry(incoming()) && 
+                        incoming().userId == existing().userId &&
+                        incoming().createdAt == existing().createdAt &&
+                        incoming().updatedAt == request.time;
+        allow delete: if isOwner(userId);
+      }
+
+      match /settings/main {
+        allow get: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidUserSettings(incoming());
+        allow update: if isOwner(userId) && isValidUserSettings(incoming()) &&
+                        incoming().userId == existing().userId;
+        allow delete: if isOwner(userId);
+      }
+    }
+  }
+}
