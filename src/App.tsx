@@ -634,62 +634,73 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#0a0f18] text-slate-300 font-sans p-4 sm:p-8">
       {/* Header */}
-      <header className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-end mb-8 gap-4">
-        <div>
+      <header className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-6">
+        <div className="w-full md:w-auto">
           <div className="flex items-center gap-2 mb-1">
             <Sun className="text-emerald-500" size={24} />
             <h1 className="text-2xl font-bold tracking-tight text-white uppercase italic">Solai</h1>
           </div>
           <p className="text-slate-400 text-sm font-medium">Monitoramento de Retorno Energético • {user.displayName}</p>
         </div>
-        <div className="flex gap-4 w-full sm:w-auto">
-          <div className="bg-slate-900 border border-slate-800 px-4 py-2 rounded-xl shadow-sm flex-1 sm:flex-none hover:border-emerald-500/30 transition-colors">
-            <span className="text-[10px] text-slate-400 block uppercase font-bold tracking-wider underline decoration-emerald-500/30 decoration-2 underline-offset-4">Investimento</span>
-            <span 
-              className="text-lg font-black italic text-white cursor-pointer hover:text-emerald-500 transition-colors"
-              onClick={() => {
-                setNewInvestment(investmentValue.toString());
-                setIsSettingsOpen(true);
-              }}
-            >
-              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(investmentValue)}
-            </span>
-          </div>
-          
-          <div 
-            onClick={isDriveConnected ? handleDisconnectDrive : handleConnectDrive}
-            className={cn(
-              "px-4 py-2 rounded-xl shadow-sm cursor-pointer transition-all border flex items-center gap-2",
-              isDriveConnected 
-                ? "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100" 
-                : "bg-blue-50 border-blue-100 text-blue-600 hover:bg-blue-100"
-            )}
-          >
-            <div className={cn(
-              "p-1.5 rounded-lg",
-              isDriveConnected ? "bg-emerald-500 text-white" : "bg-blue-500 text-white"
-            )}>
-              <HardDrive size={14} />
-            </div>
+        
+        <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+          <div className="bg-slate-900 border border-slate-800 px-4 py-2 rounded-xl shadow-sm flex items-center justify-between sm:justify-start gap-4 hover:border-emerald-500/30 transition-colors">
             <div>
-              <span className="text-[10px] block uppercase font-bold tracking-wider">Google Drive</span>
-              <span className="text-xs font-bold leading-tight">
-                {isDriveConnected ? "Conectado" : "Conectar"}
+              <span className="text-[10px] text-slate-400 block uppercase font-bold tracking-wider underline decoration-emerald-500/30 decoration-2 underline-offset-4">Investimento</span>
+              <span 
+                className="text-lg font-black italic text-white cursor-pointer hover:text-emerald-500 transition-colors"
+                onClick={() => {
+                  setNewInvestment(investmentValue.toString());
+                  setIsSettingsOpen(true);
+                }}
+              >
+                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(investmentValue)}
               </span>
             </div>
+            <button 
+              onClick={() => setIsSettingsOpen(true)}
+              className="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white transition-colors sm:hidden"
+            >
+              <Pencil size={14} />
+            </button>
           </div>
+          
+          <div className="flex gap-4 w-full sm:w-auto">
+            <div 
+              onClick={isDriveConnected ? handleDisconnectDrive : handleConnectDrive}
+              className={cn(
+                "flex-1 sm:flex-none px-4 py-2 rounded-xl shadow-sm cursor-pointer transition-all border flex items-center gap-3",
+                isDriveConnected 
+                  ? "bg-emerald-500/5 border-emerald-500/10 text-emerald-400 hover:bg-emerald-500/10" 
+                  : "bg-blue-500/5 border-blue-500/10 text-blue-400 hover:bg-blue-500/10"
+              )}
+            >
+              <div className={cn(
+                "p-1.5 rounded-lg",
+                isDriveConnected ? "bg-emerald-500 text-white" : "bg-blue-500 text-white shadow-lg shadow-blue-500/20"
+              )}>
+                <HardDrive size={14} />
+              </div>
+              <div>
+                <span className="text-[10px] block uppercase font-bold tracking-wider opacity-70">Google Drive</span>
+                <span className="text-xs font-bold leading-tight">
+                  {isDriveConnected ? "Conectado" : "Conectar"}
+                </span>
+              </div>
+            </div>
 
-          <Button variant="ghost" size="sm" onClick={handleLogout} className="text-slate-400 hover:text-rose-600 self-center">
-            <LogOut size={18} />
-          </Button>
+            <Button variant="ghost" size="sm" onClick={handleLogout} className="text-slate-400 hover:text-rose-600 self-center h-12 w-12 sm:h-auto sm:w-auto rounded-xl bg-slate-900 border border-slate-800 sm:border-0 sm:bg-transparent">
+              <LogOut size={18} />
+            </Button>
+          </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left Column: Stats and Charts */}
-        <div className="lg:col-span-3 space-y-6">
+        <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6">
           {/* Progress Card */}
-          <Card className="p-6">
+          <Card className="p-6 sm:col-span-2 lg:col-span-1">
             <CircularProgress 
               percent={progressPercent} 
               remaining={new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(remainingValue)} 
@@ -717,55 +728,56 @@ export default function App() {
             trendColor={remainingValue > 0 ? "bg-amber-500/10 text-amber-500" : "bg-emerald-500/10 text-emerald-500"}
           />
 
-          <StatCard 
-            title="Tempo de Projeto" 
-            value={formatMonths(entries.length)} 
-            icon={Calendar}
-            trend={remainingValue === 0 ? "Pago!" : "Em progresso"}
-            trendColor={remainingValue === 0 ? "bg-emerald-500/10 text-emerald-400" : "bg-amber-500/10 text-amber-400"}
-          />
+          <div className="sm:col-span-2 lg:col-span-1 space-y-6">
+            <StatCard 
+              title="Tempo de Projeto" 
+              value={formatMonths(entries.length)} 
+              icon={Calendar}
+              trend={remainingValue === 0 ? "Pago!" : "Em progresso"}
+              trendColor={remainingValue === 0 ? "bg-emerald-500/10 text-emerald-400" : "bg-amber-500/10 text-amber-400"}
+            />
 
-          {/* Chart Card */}
-          <Card 
-            className={cn(
-              "p-6 flex flex-col gap-4 overflow-hidden transition-all duration-500 cursor-pointer group bg-slate-900/50",
-              isChartExpanded 
-                ? "fixed top-[10%] left-[5%] right-[5%] bottom-[10%] z-50 shadow-2xl border-slate-800" 
-                : "relative hover:border-emerald-500/30"
-            )}
-            onClick={() => setIsChartExpanded(!isChartExpanded)}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className={cn(
-                  "flex items-center justify-center rounded-xl transition-all",
-                  isChartExpanded ? "w-12 h-12 bg-emerald-500 text-white shadow-lg shadow-emerald-500/20" : "w-8 h-8 bg-emerald-500/10 text-emerald-400"
-                )}>
-                  <Activity size={isChartExpanded ? 24 : 16} />
+            {/* Chart Card */}
+            <Card 
+              className={cn(
+                "p-6 flex flex-col gap-4 overflow-hidden transition-all duration-500 cursor-pointer group bg-slate-900/50",
+                isChartExpanded 
+                  ? "fixed inset-0 sm:inset-[5%] md:inset-[10%] z-50 shadow-2xl border-slate-800 backdrop-blur-xl force-landscape-chart" 
+                  : "relative hover:border-emerald-500/30 min-h-[250px]"
+              )}
+              onClick={() => setIsChartExpanded(!isChartExpanded)}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={cn(
+                    "flex items-center justify-center rounded-xl transition-all",
+                    isChartExpanded ? "w-10 h-10 md:w-12 md:h-12 bg-emerald-500 text-white shadow-lg shadow-emerald-500/20" : "w-8 h-8 bg-emerald-500/10 text-emerald-400"
+                  )}>
+                    <Activity size={isChartExpanded ? 24 : 16} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none">Crescimento de Retorno</p>
+                    <p className={cn("font-bold text-white uppercase tracking-tight", isChartExpanded ? "text-lg md:text-xl" : "text-xs")}>
+                      {isChartExpanded ? "Análise Estratégica" : "Evolução"}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none">Crescimento de Retorno</p>
-                  <p className={cn("font-bold text-white uppercase tracking-tight", isChartExpanded ? "text-xl" : "text-xs")}>
-                    {isChartExpanded ? "Análise Estratégica de Payback" : "Evolução do Investimento"}
-                  </p>
-                </div>
+                {!isChartExpanded && (
+                  <div className="text-[10px] text-emerald-400 font-bold flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-full">
+                    <Plus size={12} />
+                  </div>
+                )}
+                {isChartExpanded && (
+                  <button className="p-2 hover:bg-slate-800 rounded-full text-slate-400 transition-colors">
+                    <X size={24} />
+                  </button>
+                )}
               </div>
-              {!isChartExpanded && (
-                <div className="text-[10px] text-emerald-400 font-bold flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-full">
-                  VER DETALHES <Plus size={12} />
-                </div>
-              )}
-              {isChartExpanded && (
-                <button className="p-2 hover:bg-slate-800 rounded-full text-slate-400 transition-colors">
-                  <X size={24} />
-                </button>
-              )}
-            </div>
-            
-            <div className={cn("w-full transition-all duration-500", isChartExpanded ? "flex-1 mt-8" : "h-44 mt-4")}>
-              {chartData.length > 0 ? (
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+              
+              <div className={cn("w-full transition-all duration-500", isChartExpanded ? "flex-1 mt-4 md:mt-8" : "flex-1 h-32 md:h-44")}>
+                {chartData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%" minHeight={isChartExpanded ? 200 : 100}>
+                    <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                     <defs>
                       <linearGradient id="colorRecovered" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="5%" stopColor="#10b981" stopOpacity={0.2}/>
@@ -848,28 +860,28 @@ export default function App() {
             </div>
             
             {isChartExpanded && (
-              <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
-                <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800">
+              <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
+                <div className="p-4 md:p-5 rounded-2xl bg-slate-900 border border-slate-800">
                   <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">Média Mensal</p>
-                  <p className="text-xl font-bold text-slate-100 italic">
+                  <p className="text-lg md:text-xl font-bold text-slate-100 italic">
                     {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalRecovered / (entries.length || 1))}
                   </p>
                 </div>
-                <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
+                <div className="p-4 md:p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
                   <p className="text-[10px] text-emerald-400 font-bold uppercase mb-1">Total Recuperado</p>
-                  <p className="text-xl font-bold text-emerald-500 italic">
+                  <p className="text-lg md:text-xl font-bold text-emerald-500 italic">
                     {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalRecovered)}
                   </p>
                 </div>
-                <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20">
+                <div className="p-4 md:p-5 rounded-2xl bg-rose-500/10 border border-rose-500/20">
                   <p className="text-[10px] text-rose-400 font-bold uppercase mb-1">Falta para Payback</p>
-                  <p className="text-xl font-bold text-rose-500 italic">
+                  <p className="text-lg md:text-xl font-bold text-rose-500 italic">
                     {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(remainingValue)}
                   </p>
                 </div>
-                <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/20">
-                  <p className="text-[10px] text-blue-400 font-bold uppercase mb-1">Lucro Real (Pós-Payback)</p>
-                  <p className="text-xl font-bold text-blue-500 italic">
+                <div className="p-4 md:p-5 rounded-2xl bg-blue-500/10 border border-blue-500/20">
+                  <p className="text-[10px] text-blue-400 font-bold uppercase mb-1">Lucro Real</p>
+                  <p className="text-lg md:text-xl font-bold text-blue-500 italic">
                     {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(profitValue)}
                   </p>
                 </div>
@@ -970,178 +982,319 @@ export default function App() {
             </div>
           </Card>
         </div>
+      </div>
 
         {/* Right Column: History Table */}
         <div className="lg:col-span-9">
-          <Card className="flex flex-col min-h-[1000px]">
-            <div className="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-900/50 sticky top-0 z-10 backdrop-blur-md">
-              <h3 className="text-white font-black tracking-tight uppercase italic text-lg">Histórico de Lançamentos</h3>
+          <Card className="flex flex-col min-h-[600px] lg:min-h-[800px]">
+            <div className="p-6 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-900/50 sticky top-0 z-10 backdrop-blur-md gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-1.5 h-8 bg-emerald-500 rounded-full" />
+                <h3 className="text-white font-black tracking-tight uppercase italic text-lg">Histórico de Lançamentos</h3>
+              </div>
+              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest sm:hidden">Deslize para ver mais →</p>
             </div>
-            <div className="flex-1 overflow-auto text-xs sm:text-base">
-              <table className="w-full text-left">
-                <thead className="sticky top-0 bg-slate-900 text-slate-200 uppercase text-[11px] font-black z-10 border-b border-slate-800">
-                  <tr>
-                    <th className="px-5 py-5 min-w-[80px]">Ref.</th>
-                    <th className="px-5 py-5 text-right min-w-[120px]">Valor Conta</th>
-                    <th className="px-5 py-5 text-right min-w-[120px]">Desconto</th>
-                    <th className="px-5 py-5 text-right min-w-[140px]">Saldo Restante</th>
-                    <th className="px-5 py-5 text-center min-w-[110px]">Fatura</th>
-                    <th className="px-5 py-5 text-center min-w-[110px]">Ações</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800/50">
-                  {entries.length > 0 ? (() => {
-                    let runningBalance = investmentValue;
-                    const rowsWithBalance = entries.map(entry => {
-                      runningBalance = Math.max(0, runningBalance - entry.discountValue);
-                      return { ...entry, balanceAtTime: runningBalance };
-                    });
-                    
-                    return rowsWithBalance.reverse().map((entry) => (
-                      <tr key={entry.id} className="hover:bg-slate-800/40 transition-all group border-l-2 border-l-transparent hover:border-l-emerald-500/50">
-                        <td className="px-5 py-5 font-black italic text-white text-base whitespace-nowrap">
-                          {entry.month.toString().padStart(2, '0')}/{entry.year}
-                        </td>
-                        <td className="px-5 py-5 text-right text-slate-100 font-mono text-base font-medium">
-                          {editingId === entry.id ? (
-                            <div className="relative inline-block">
-                              <span className="absolute left-1.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-500 font-bold italic">R$</span>
-                              <input 
-                                type="number" 
-                                className="w-20 sm:w-28 pl-6 pr-1 py-1.5 bg-slate-950 border border-slate-700 rounded-md text-right text-sm text-white focus:ring-2 focus:ring-emerald-500/50 outline-none transition-all shadow-inner [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                value={editForm.totalBill}
-                                onChange={(e) => setEditForm({ ...editForm, totalBill: Number(e.target.value) })}
-                                autoFocus
-                              />
-                            </div>
-                          ) : (
-                            entry.totalBill ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(entry.totalBill) : '—'
-                          )}
-                        </td>
-                        <td className="px-5 py-5 text-right font-black italic text-emerald-400 font-mono text-base tracking-tight">
-                          {editingId === entry.id ? (
-                            <div className="flex items-center justify-end">
+            <div className="flex-1">
+              {/* Desktop View: Table */}
+              <div className="hidden lg:block overflow-x-auto scrollbar-hide">
+                <table className="w-full text-left min-w-[700px]">
+                  <thead className="sticky top-0 bg-slate-900 text-slate-200 uppercase text-[10px] font-black z-10 border-b border-slate-800">
+                    <tr>
+                      <th className="px-4 md:px-5 py-4">Ref.</th>
+                      <th className="px-4 md:px-5 py-4 text-right">Valor Conta</th>
+                      <th className="px-4 md:px-5 py-4 text-right">Desconto GD</th>
+                      <th className="px-4 md:px-5 py-4 text-right">Saldo Restante</th>
+                      <th className="px-4 md:px-5 py-4 text-center">Fatura</th>
+                      <th className="px-4 md:px-5 py-4 text-center">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800/10">
+                    {entries.length > 0 ? (() => {
+                      let runningBalance = investmentValue;
+                      const rowsWithBalance = entries.map(entry => {
+                        runningBalance = Math.max(0, runningBalance - entry.discountValue);
+                        return { ...entry, balanceAtTime: runningBalance };
+                      });
+                      
+                      return rowsWithBalance.reverse().map((entry) => (
+                        <tr key={entry.id} className="hover:bg-slate-800/10 transition-all group border-l-2 border-l-transparent hover:border-l-emerald-500/50">
+                          <td className="px-4 md:px-5 py-4 font-black italic text-white text-sm md:text-base whitespace-nowrap">
+                            {entry.month.toString().padStart(2, '0')}/{entry.year}
+                          </td>
+                          <td className="px-4 md:px-5 py-4 text-right text-slate-100 font-mono text-sm md:text-base font-medium">
+                            {editingId === entry.id ? (
                               <div className="relative inline-block">
-                                <span className="absolute left-1.5 top-1/2 -translate-y-1/2 text-[10px] text-emerald-600 font-bold italic">-R$</span>
+                                <span className="absolute left-1.5 top-1/2 -translate-y-1/2 text-[8px] text-slate-500 font-bold italic">R$</span>
                                 <input 
                                   type="number" 
-                                  className="w-20 sm:w-28 pl-8 pr-1 py-1.5 bg-slate-950 border border-emerald-500/30 rounded-md text-right text-emerald-400 text-sm focus:ring-2 focus:ring-emerald-500/50 outline-none font-black italic transition-all shadow-lg shadow-emerald-500/10 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                  value={editForm.discountValue}
-                                  onChange={(e) => setEditForm({ ...editForm, discountValue: Number(e.target.value) })}
+                                  className="w-20 sm:w-28 pl-6 pr-1 py-1 bg-slate-950 border border-slate-700 rounded-md text-right text-xs text-white focus:ring-1 focus:ring-emerald-500/50 outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                  value={editForm.totalBill}
+                                  onChange={(e) => setEditForm({ ...editForm, totalBill: Number(e.target.value) })}
+                                  autoFocus
                                 />
                               </div>
-                            </div>
-                          ) : (
-                            `- ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(entry.discountValue)}`
-                          )}
-                        </td>
-                        <td className="px-5 py-5 text-right text-white font-black italic font-mono text-base shadow-sm">
-                          {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(entry.balanceAtTime)}
-                        </td>
-                        <td className="px-5 py-5 text-center">
-                          {entry.driveLink ? (
-                            <a 
-                              href={entry.driveLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-all text-xs font-black border border-blue-500/20 uppercase tracking-tight shadow-md"
-                            >
-                              <HardDrive size={14} />
-                              Drive
-                            </a>
-                          ) : entry.pdfBase64 ? (
-                            <button 
-                              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-all text-xs font-black border border-emerald-500/20 uppercase tracking-tight shadow-md"
-                              onClick={() => {
-                                const base64Data = entry.pdfBase64!.split(',')[1];
-                                const byteCharacters = atob(base64Data);
-                                const byteNumbers = new Array(byteCharacters.length);
-                                for (let i = 0; i < byteCharacters.length; i++) {
-                                  byteNumbers[i] = byteCharacters.charCodeAt(i);
-                                }
-                                const byteArray = new Uint8Array(byteNumbers);
-                                const file = new Blob([byteArray], { type: 'application/pdf' });
-                                const fileURL = URL.createObjectURL(file);
-                                window.open(fileURL, '_blank');
-                              }}
-                            >
-                              <FileText size={14} />
-                              Visualizar
-                            </button>
-                          ) : (
-                            <span className="text-xs text-slate-400 font-black italic uppercase tracking-widest">Indisponível</span>
-                          )}
-                        </td>
-                        <td className="px-5 py-5 text-center">
-                          <div className="flex items-center justify-center gap-2">
+                            ) : (
+                              entry.totalBill ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(entry.totalBill) : '—'
+                            )}
+                          </td>
+                          <td className="px-4 md:px-5 py-4 text-right font-black italic text-emerald-400 font-mono text-sm md:text-base tracking-tight">
                             {editingId === entry.id ? (
-                               <div className="flex items-center gap-1.5 animate-in fade-in zoom-in duration-200">
-                               <button 
-                                 onClick={() => handleUpdateEntry(entry.id)}
-                                 className="bg-emerald-500 text-white p-2 rounded-lg hover:bg-emerald-600 transition-all shadow-lg active:scale-95"
-                                 title="Salvar"
-                               >
-                                 <Check size={16} />
-                               </button>
-                               <button 
-                                 onClick={() => setEditingId(null)}
-                                 className="bg-slate-700 text-slate-200 p-2 rounded-lg hover:bg-slate-600 transition-all shadow-md active:scale-95"
-                                 title="Cancelar"
-                               >
-                                 <X size={16} />
-                               </button>
-                             </div>
-                            ) : deletingId === entry.id ? (
-                              <div className="flex items-center gap-1.5 animate-in fade-in zoom-in duration-200">
-                                <button 
-                                  onClick={() => handleDeleteEntry(entry.id)}
-                                  className="bg-rose-500 text-white p-2 rounded-lg hover:bg-rose-600 transition-all shadow-lg active:scale-95"
-                                  title="Confirmar exclusão"
-                                >
-                                  <Check size={16} />
-                                </button>
-                                <button 
-                                  onClick={() => setDeletingId(null)}
-                                  className="bg-slate-700 text-slate-200 p-2 rounded-lg hover:bg-slate-600 transition-all shadow-md active:scale-95"
-                                  title="Cancelar"
-                                >
-                                  <X size={16} />
-                                </button>
+                              <div className="flex items-center justify-end">
+                                <div className="relative inline-block">
+                                  <span className="absolute left-1.5 top-1/2 -translate-y-1/2 text-[8px] text-emerald-600 font-bold italic">-R$</span>
+                                  <input 
+                                    type="number" 
+                                    className="w-20 sm:w-28 pl-8 pr-1 py-1 bg-slate-950 border border-emerald-500/30 rounded-md text-right text-emerald-400 text-xs focus:ring-1 focus:ring-emerald-500/50 outline-none font-black italic transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                    value={editForm.discountValue}
+                                    onChange={(e) => setEditForm({ ...editForm, discountValue: Number(e.target.value) })}
+                                  />
+                                </div>
                               </div>
                             ) : (
-                              <div className="flex items-center gap-1 opacity-100 group-hover:opacity-100 transition-all">
-                                <button 
-                                  onClick={() => startEditing(entry)}
-                                  className="text-slate-400 hover:text-white hover:bg-slate-800 transition-all p-2 rounded-lg"
-                                  title="Editar valores"
-                                >
-                                  <Pencil size={18} />
-                                </button>
-                                <button 
-                                  onClick={() => setDeletingId(entry.id)}
-                                  className="text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 transition-all p-2 rounded-lg"
-                                  title="Remover lançamento"
-                                >
-                                  <Trash2 size={18} />
-                                </button>
-                              </div>
+                              new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(entry.discountValue)
                             )}
+                          </td>
+                          <td className="px-4 md:px-5 py-4 text-right text-white font-black italic font-mono text-sm md:text-base">
+                            {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(entry.balanceAtTime)}
+                          </td>
+                          <td className="px-4 md:px-5 py-4 text-center">
+                            <div className="flex items-center justify-center">
+                              {entry.driveLink ? (
+                                <a 
+                                  href={entry.driveLink}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-all text-[10px] font-black border border-blue-500/20 uppercase tracking-tight"
+                                >
+                                  <HardDrive size={12} />
+                                  Drive
+                                </a>
+                              ) : entry.pdfBase64 ? (
+                                <button 
+                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-all text-[10px] font-black border border-emerald-500/20 uppercase tracking-tight"
+                                  onClick={() => {
+                                    const base64Data = entry.pdfBase64!.split(',')[1];
+                                    const byteCharacters = atob(base64Data);
+                                    const byteNumbers = new Array(byteCharacters.length);
+                                    for (let i = 0; i < byteCharacters.length; i++) {
+                                      byteNumbers[i] = byteCharacters.charCodeAt(i);
+                                    }
+                                    const byteArray = new Uint8Array(byteNumbers);
+                                    const file = new Blob([byteArray], { type: 'application/pdf' });
+                                    const fileURL = URL.createObjectURL(file);
+                                    window.open(fileURL, '_blank');
+                                  }}
+                                >
+                                  <FileText size={12} />
+                                  PDF
+                                </button>
+                              ) : (
+                                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest opacity-40">N/A</span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-4 md:px-5 py-4 text-center">
+                            <div className="flex items-center justify-center gap-2">
+                              {editingId === entry.id ? (
+                                 <div className="flex items-center gap-1.5 animate-in fade-in zoom-in duration-200">
+                                 <button 
+                                   onClick={() => handleUpdateEntry(entry.id)}
+                                   className="bg-emerald-500 text-white p-1.5 rounded-lg hover:bg-emerald-600 transition-all shadow-lg active:scale-95"
+                                   title="Salvar"
+                                 >
+                                   <Check size={14} />
+                                 </button>
+                                 <button 
+                                   onClick={() => setEditingId(null)}
+                                   className="bg-slate-700 text-slate-200 p-1.5 rounded-lg hover:bg-slate-600 transition-all active:scale-95"
+                                   title="Cancelar"
+                                 >
+                                   <X size={14} />
+                                 </button>
+                               </div>
+                              ) : deletingId === entry.id ? (
+                                <div className="flex items-center gap-1.5 animate-in fade-in zoom-in duration-200">
+                                  <button 
+                                    onClick={() => handleDeleteEntry(entry.id)}
+                                    className="bg-rose-500 text-white p-1.5 rounded-lg hover:bg-rose-600 transition-all shadow-lg active:scale-95"
+                                    title="Confirmar exclusão"
+                                  >
+                                    <Check size={14} />
+                                  </button>
+                                  <button 
+                                    onClick={() => setDeletingId(null)}
+                                    className="bg-slate-700 text-slate-200 p-1.5 rounded-lg hover:bg-slate-600 transition-all active:scale-95"
+                                    title="Cancelar"
+                                  >
+                                    <X size={14} />
+                                  </button>
+                                </div>
+                              ) : (
+                                <div className="flex items-center gap-1">
+                                  <button 
+                                    onClick={() => startEditing(entry)}
+                                    className="text-slate-400 hover:text-white hover:bg-slate-800 transition-all p-1.5 rounded-lg"
+                                    title="Editar"
+                                  >
+                                    <Pencil size={18} />
+                                  </button>
+                                  <button 
+                                    onClick={() => setDeletingId(entry.id)}
+                                    className="text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 transition-all p-1.5 rounded-lg"
+                                    title="Excluir"
+                                  >
+                                    <Trash2 size={18} />
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ));
+                    })() : (
+                      <tr>
+                        <td colSpan={6} className="px-6 py-20 text-center text-slate-600">
+                          <div className="flex flex-col items-center gap-4">
+                            <History size={48} className="opacity-10" />
+                            <p className="text-sm font-black uppercase italic tracking-[0.2em] opacity-40">Aguardando Lançamentos</p>
                           </div>
                         </td>
                       </tr>
-                    ));
-                  })() : (
-                    <tr>
-                      <td colSpan={6} className="px-6 py-20 text-center text-slate-600">
-                        <div className="flex flex-col items-center gap-4">
-                          <History size={48} className="opacity-10" />
-                          <p className="text-sm font-black uppercase italic tracking-[0.2em] opacity-40">Aguardando Lançamentos</p>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile View: Row-based Cards */}
+              <div className="lg:hidden p-4 space-y-4">
+                {entries.length > 0 ? (() => {
+                  let runningBalance = investmentValue;
+                  const rowsWithBalance = entries.map(entry => {
+                    runningBalance = Math.max(0, runningBalance - entry.discountValue);
+                    return { ...entry, balanceAtTime: runningBalance };
+                  });
+                  
+                  return rowsWithBalance.reverse().map((entry) => (
+                    <div key={entry.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 relative overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300">
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="flex items-center gap-2">
+                          <div className="w-1 h-6 bg-emerald-500 rounded-full" />
+                          <span className="text-white font-black italic text-lg">{entry.month.toString().padStart(2, '0')}/{entry.year}</span>
                         </div>
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+                        <div className="flex items-center gap-1.5">
+                           {editingId === entry.id || deletingId === entry.id ? (
+                             <div className="flex items-center gap-1.5">
+                                <button 
+                                  onClick={editingId === entry.id ? () => handleUpdateEntry(entry.id) : () => handleDeleteEntry(entry.id)}
+                                  className={cn("p-1.5 rounded-lg text-white transition-all shadow-lg", editingId === entry.id ? "bg-emerald-500" : "bg-rose-500")}
+                                >
+                                  <Check size={14} />
+                                </button>
+                                <button 
+                                  onClick={() => { setEditingId(null); setDeletingId(null); }}
+                                  className="bg-slate-700 text-slate-200 p-1.5 rounded-lg"
+                                >
+                                  <X size={14} />
+                                </button>
+                             </div>
+                           ) : (
+                             <div className="flex items-center gap-1">
+                               <button 
+                                 onClick={() => startEditing(entry)}
+                                 className="text-slate-400 p-1.5 hover:bg-slate-800 rounded-lg"
+                               >
+                                 <Pencil size={16} />
+                               </button>
+                               <button 
+                                 onClick={() => setDeletingId(entry.id)}
+                                 className="text-slate-400 p-1.5 hover:bg-rose-500/10 hover:text-rose-500 rounded-lg"
+                               >
+                                 <Trash2 size={16} />
+                               </button>
+                             </div>
+                           )}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-y-4 gap-x-6 mb-4">
+                        <div className="space-y-0.5">
+                          <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">Valor Conta</p>
+                          <div className="text-slate-200 font-mono text-sm">
+                             {editingId === entry.id ? (
+                               <input 
+                                 type="number" 
+                                 className="w-full bg-slate-950 border border-slate-700 rounded p-1 text-xs outline-none focus:ring-1 focus:ring-emerald-500"
+                                 value={editForm.totalBill}
+                                 onChange={(e) => setEditForm({ ...editForm, totalBill: Number(e.target.value) })}
+                               />
+                             ) : (
+                               entry.totalBill ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(entry.totalBill) : '—'
+                             )}
+                          </div>
+                        </div>
+                        <div className="space-y-0.5">
+                          <p className="text-[9px] text-emerald-500 font-bold uppercase tracking-wider">Desconto GD</p>
+                          <div className="text-emerald-400 font-mono font-bold text-sm">
+                             {editingId === entry.id ? (
+                               <input 
+                                 type="number" 
+                                 className="w-full bg-slate-950 border border-emerald-500/20 rounded p-1 text-xs outline-none focus:ring-1 focus:ring-emerald-500 text-emerald-400"
+                                 value={editForm.discountValue}
+                                 onChange={(e) => setEditForm({ ...editForm, discountValue: Number(e.target.value) })}
+                               />
+                             ) : (
+                               new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(entry.discountValue)
+                             )}
+                          </div>
+                        </div>
+                        <div className="col-span-2 pt-2 border-t border-slate-800/50">
+                          <div className="flex justify-between items-center bg-slate-950/40 p-3 rounded-xl border border-slate-800/30">
+                            <div>
+                               <p className="text-[8px] text-slate-500 font-bold uppercase tracking-widest leading-none mb-1">Saldo Restante</p>
+                               <p className="text-white font-black font-mono italic text-sm">
+                                  {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(entry.balanceAtTime)}
+                               </p>
+                            </div>
+                            
+                            <div className="flex items-center gap-2">
+                               {entry.driveLink ? (
+                                 <a href={entry.driveLink} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                                   <HardDrive size={14} />
+                                 </a>
+                               ) : entry.pdfBase64 ? (
+                                 <button 
+                                   className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                                   onClick={() => {
+                                      const base64Data = entry.pdfBase64!.split(',')[1];
+                                      const byteCharacters = atob(base64Data);
+                                      const byteNumbers = new Array(byteCharacters.length);
+                                      for (let i = 0; i < byteCharacters.length; i++) {
+                                        byteNumbers[i] = byteCharacters.charCodeAt(i);
+                                      }
+                                      const byteArray = new Uint8Array(byteNumbers);
+                                      const file = new Blob([byteArray], { type: 'application/pdf' });
+                                      const fileURL = URL.createObjectURL(file);
+                                      window.open(fileURL, '_blank');
+                                   }}
+                                 >
+                                   <FileText size={14} />
+                                 </button>
+                               ) : (
+                                 <span className="text-[8px] text-slate-600 font-bold uppercase tracking-widest">N/A</span>
+                               )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ));
+                })() : (
+                  <div className="py-20 text-center text-slate-600">
+                    <History size={40} className="mx-auto mb-4 opacity-10" />
+                    <p className="text-[10px] font-black uppercase italic tracking-widest opacity-40">Aguardando Lançamentos</p>
+                  </div>
+                )}
+              </div>
             </div>
           </Card>
         </div>

@@ -4,3 +4,30 @@
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
 }
+
+@layer utilities {
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  @media (max-width: 1023px) and (orientation: portrait) {
+    .force-landscape-chart {
+      width: 100vh !important;
+      height: 100vw !important;
+      transform: rotate(90deg) !important;
+      transform-origin: center center !important;
+      position: fixed !important;
+      top: 50% !important;
+      left: 50% !important;
+      margin-left: -50vh !important;
+      margin-top: -50vw !important;
+      border-radius: 0 !important;
+      padding: 1.5rem !important;
+      z-index: 9999 !important;
+    }
+  }
+}
