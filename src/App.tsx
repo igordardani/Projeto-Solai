@@ -1002,7 +1002,7 @@ export default function App() {
                     <tr>
                       <th className="px-4 md:px-5 py-4">Ref.</th>
                       <th className="px-4 md:px-5 py-4 text-right">Valor Conta</th>
-                      <th className="px-4 md:px-5 py-4 text-right">Desconto GD</th>
+                      <th className="px-4 md:px-5 py-4 text-right">Desconto</th>
                       <th className="px-4 md:px-5 py-4 text-right">Saldo Restante</th>
                       <th className="px-4 md:px-5 py-4 text-center">Fatura</th>
                       <th className="px-4 md:px-5 py-4 text-center">Ações</th>
@@ -1064,14 +1064,14 @@ export default function App() {
                                   href={entry.driveLink}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-all text-[10px] font-black border border-blue-500/20 uppercase tracking-tight"
+                                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-all text-xs font-black border border-blue-500/20 uppercase tracking-tight shadow-sm"
                                 >
-                                  <HardDrive size={12} />
+                                  <HardDrive size={14} />
                                   Drive
                                 </a>
                               ) : entry.pdfBase64 ? (
                                 <button 
-                                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-all text-[10px] font-black border border-emerald-500/20 uppercase tracking-tight"
+                                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-all text-xs font-black border border-emerald-500/20 uppercase tracking-tight shadow-sm"
                                   onClick={() => {
                                     const base64Data = entry.pdfBase64!.split(',')[1];
                                     const byteCharacters = atob(base64Data);
@@ -1085,7 +1085,7 @@ export default function App() {
                                     window.open(fileURL, '_blank');
                                   }}
                                 >
-                                  <FileText size={12} />
+                                  <FileText size={14} />
                                   PDF
                                 </button>
                               ) : (
@@ -1232,8 +1232,36 @@ export default function App() {
                              )}
                           </div>
                         </div>
-                        <div className="space-y-0.5">
-                          <p className="text-[9px] text-emerald-500 font-bold uppercase tracking-wider">Desconto GD</p>
+                        <div className="space-y-1.5">
+                          <div className="flex items-center justify-between">
+                            <p className="text-[9px] text-emerald-500 font-bold uppercase tracking-wider">Desconto</p>
+                            <div className="flex items-center gap-1.5">
+                               {entry.driveLink ? (
+                                 <a href={entry.driveLink} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-md bg-blue-500/10 text-blue-400 border border-blue-500/20 shadow-sm" title="Google Drive">
+                                   <HardDrive size={12} />
+                                 </a>
+                               ) : entry.pdfBase64 ? (
+                                 <button 
+                                   className="p-1.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-sm"
+                                   title="Visualizar PDF"
+                                   onClick={() => {
+                                      const base64Data = entry.pdfBase64!.split(',')[1];
+                                      const byteCharacters = atob(base64Data);
+                                      const byteNumbers = new Array(byteCharacters.length);
+                                      for (let i = 0; i < byteCharacters.length; i++) {
+                                        byteNumbers[i] = byteCharacters.charCodeAt(i);
+                                      }
+                                      const byteArray = new Uint8Array(byteNumbers);
+                                      const file = new Blob([byteArray], { type: 'application/pdf' });
+                                      const fileURL = URL.createObjectURL(file);
+                                      window.open(fileURL, '_blank');
+                                   }}
+                                 >
+                                   <FileText size={12} />
+                                 </button>
+                               ) : null}
+                            </div>
+                          </div>
                           <div className="text-emerald-400 font-mono font-bold text-sm">
                              {editingId === entry.id ? (
                                <input 
@@ -1254,34 +1282,6 @@ export default function App() {
                                <p className="text-white font-black font-mono italic text-sm">
                                   {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(entry.balanceAtTime)}
                                </p>
-                            </div>
-                            
-                            <div className="flex items-center gap-2">
-                               {entry.driveLink ? (
-                                 <a href={entry.driveLink} target="_blank" rel="noopener noreferrer" className="p-2 rounded-lg bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                                   <HardDrive size={14} />
-                                 </a>
-                               ) : entry.pdfBase64 ? (
-                                 <button 
-                                   className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                                   onClick={() => {
-                                      const base64Data = entry.pdfBase64!.split(',')[1];
-                                      const byteCharacters = atob(base64Data);
-                                      const byteNumbers = new Array(byteCharacters.length);
-                                      for (let i = 0; i < byteCharacters.length; i++) {
-                                        byteNumbers[i] = byteCharacters.charCodeAt(i);
-                                      }
-                                      const byteArray = new Uint8Array(byteNumbers);
-                                      const file = new Blob([byteArray], { type: 'application/pdf' });
-                                      const fileURL = URL.createObjectURL(file);
-                                      window.open(fileURL, '_blank');
-                                   }}
-                                 >
-                                   <FileText size={14} />
-                                 </button>
-                               ) : (
-                                 <span className="text-[8px] text-slate-600 font-bold uppercase tracking-widest">N/A</span>
-                               )}
                             </div>
                           </div>
                         </div>
