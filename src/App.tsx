@@ -281,7 +281,14 @@ export default function App() {
   // Initialize Gemini AI
   const aiRef = useRef<any>(null);
   if (!aiRef.current) {
-    const apiKey = typeof process !== 'undefined' ? process.env.GEMINI_API_KEY : '';
+    // Tenta pegar de várias fontes para garantir funcionamento no AI Studio e no Vercel
+    // No Vercel/Vite, variáveis precisam começar com VITE_ para serem expostas ao browser
+    const apiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || 
+                   (typeof process !== 'undefined' ? process.env?.GEMINI_API_KEY : '');
+    
+    if (!apiKey) {
+      console.warn("Gemini API Key não detectada nas variáveis de ambiente.");
+    }
     aiRef.current = new GoogleGenAI({ apiKey: apiKey || "" });
   }
 
