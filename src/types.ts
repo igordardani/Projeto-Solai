@@ -16,6 +16,8 @@ export interface UserEntry {
 export interface UserSettings {
   investmentValue: number;
   userId: string;
+  cpf?: string;
+  installationDate?: string;
 }
 
 export enum OperationType {

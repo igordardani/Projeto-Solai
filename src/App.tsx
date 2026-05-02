@@ -19,7 +19,10 @@ import {
   HardDrive,
   Pencil,
   Check,
-  X
+  X,
+  Smartphone,
+  Mail,
+  FileUp
 } from "lucide-react";
 import { 
   onAuthStateChanged, 
@@ -78,22 +81,22 @@ const formatMonths = (totalMonths: number) => {
 const Button = React.forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline', size?: 'sm' | 'md' | 'lg' }>(
   ({ className, variant = 'primary', size = 'md', ...props }, ref) => {
     const variants = {
-      primary: 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm',
-      secondary: 'bg-slate-100 text-slate-900 hover:bg-slate-200',
-      danger: 'bg-rose-500 text-white hover:bg-rose-600',
-      ghost: 'hover:bg-slate-100 text-slate-600',
-      outline: 'border border-slate-200 hover:bg-slate-50 text-slate-700'
+      primary: 'bg-emerald-600 text-white hover:bg-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.2)] border border-emerald-500/50',
+      secondary: 'bg-slate-800 text-slate-100 hover:bg-slate-700 border border-slate-700',
+      danger: 'bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white border border-rose-500/20',
+      ghost: 'hover:bg-slate-800 text-slate-400 hover:text-white',
+      outline: 'border border-slate-800 hover:bg-slate-800 text-slate-400 hover:text-white backdrop-blur-sm'
     };
     const sizes = {
-      sm: 'px-3 py-1.5 text-sm',
-      md: 'px-4 py-2',
-      lg: 'px-6 py-3 text-lg'
+      sm: 'px-3 py-1.5 text-[10px] uppercase font-black tracking-widest',
+      md: 'px-6 py-2.5 text-xs uppercase font-black tracking-widest',
+      lg: 'px-8 py-4 text-sm uppercase font-black tracking-widest'
     };
     return (
       <button
         ref={ref}
         className={cn(
-          'inline-flex items-center justify-center rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed',
+          'inline-flex items-center justify-center rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed italic active:scale-95',
           variants[variant],
           sizes[size],
           className
@@ -113,39 +116,43 @@ const Card = ({ children, className, ...props }: React.HTMLAttributes<HTMLDivEle
   </div>
 );
 
-const StatCard = ({ title, value, icon: Icon, trend, trendColor, onTrendClick, variant = 'white' }: { title: string, value: string, icon: any, trend?: string, trendColor?: string, onTrendClick?: () => void, variant?: 'white' | 'emerald' }) => (
+const StatCard = ({ title, value, icon: Icon, trend, trendColor, variant = 'white' }: { title: string, value: string, icon: any, trend?: string, trendColor?: string, variant?: 'white' | 'emerald' }) => (
   <Card className={cn(
-    "p-5 flex flex-col justify-center transition-all duration-300 hover:border-emerald-500/30",
-    variant === 'emerald' ? "bg-emerald-500/10 border-emerald-500/20" : ""
+    "p-6 flex flex-col justify-between transition-all duration-500 hover:scale-[1.02] active:scale-[0.98] cursor-default group hover:shadow-2xl hover:shadow-emerald-500/10 min-h-[160px]",
+    variant === 'emerald' ? "bg-emerald-500/10 border-emerald-500/20" : "bg-slate-900/40 border-slate-800"
   )}>
-    <div className="flex justify-between items-start mb-1">
-      <div className="flex items-center gap-2">
-        <Icon size={14} className={variant === 'emerald' ? "text-emerald-400" : "text-slate-400"} />
-        <span className={cn(
-          "text-[10px] font-bold uppercase tracking-wider",
-          variant === 'emerald' ? "text-emerald-400" : "text-slate-400"
-        )}>
-          {title}
-        </span>
+    <div className="flex justify-between items-start mb-4">
+      <div className={cn(
+        "p-3 rounded-2xl transition-all duration-500",
+        variant === 'emerald' ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20" : "bg-slate-800 text-slate-400 group-hover:bg-emerald-500/10 group-hover:text-emerald-400"
+      )}>
+        <Icon size={22} />
       </div>
       {trend && (
         <span 
-          onClick={onTrendClick}
           className={cn(
-            "text-[10px] font-bold px-2 py-0.5 rounded-full cursor-pointer transition-opacity hover:opacity-80",
-            trendColor || (variant === 'emerald' ? "bg-emerald-500/20 text-emerald-400" : "bg-emerald-500/10 text-emerald-400")
+            "text-[8px] sm:text-[9px] font-black px-2.5 py-1 rounded-xl cursor-not-allowed transition-all uppercase tracking-widest italic",
+            trendColor || (variant === 'emerald' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "bg-slate-800 text-slate-400 border border-slate-700")
           )}
         >
           {trend}
         </span>
       )}
     </div>
-    <h3 className={cn(
-      "text-2xl font-black italic",
-      variant === 'emerald' ? "text-white" : "text-slate-100"
-    )}>
-      {value}
-    </h3>
+    <div className="space-y-1">
+      <span className={cn(
+        "text-[9px] font-black uppercase tracking-[0.2em] italic mb-1 block",
+        variant === 'emerald' ? "text-emerald-400/80" : "text-slate-500"
+      )}>
+        {title}
+      </span>
+      <h3 className={cn(
+        "text-xl sm:text-2xl font-black italic tracking-tighter leading-[1.1] break-words line-clamp-2",
+        variant === 'emerald' ? "text-white" : "text-slate-100"
+      )}>
+        {value}
+      </h3>
+    </div>
   </Card>
 );
 
@@ -155,14 +162,19 @@ const CircularProgress = ({ percent, remaining }: { percent: number, remaining: 
   const dashoffset = circumference - (percent / 100) * circumference;
 
   return (
-    <div className="flex flex-col justify-between h-full">
+    <div className="flex flex-col justify-between h-full py-2">
       <div>
-        <h3 className="text-white text-xs font-black uppercase italic tracking-widest mb-6 underline decoration-emerald-500/50 decoration-2 underline-offset-4">Progresso de Payback</h3>
-        <div className="relative w-40 h-40 mx-auto">
-          <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+        <div className="flex items-center gap-3 mb-6 md:mb-8">
+          <div className="w-1.5 h-8 bg-emerald-500 rounded-full shadow-[0_0_15px_rgba(16,185,129,0.3)]" />
+          <h3 className="text-white text-base md:text-lg font-black uppercase italic tracking-tight leading-none">Status de Retorno</h3>
+        </div>
+        
+        <div className="relative w-40 h-40 sm:w-48 sm:h-48 mx-auto group">
+          <div className="absolute inset-0 bg-emerald-500/5 rounded-full blur-3xl group-hover:bg-emerald-500/10 transition-all duration-1000" />
+          <svg className="w-full h-full -rotate-90 relative z-10" viewBox="0 0 36 36">
             <circle
               className="text-slate-800"
-              strokeWidth="3"
+              strokeWidth="2.5"
               fill="none"
               stroke="currentColor"
               cx="18"
@@ -171,7 +183,7 @@ const CircularProgress = ({ percent, remaining }: { percent: number, remaining: 
             />
             <circle
               className="text-emerald-500 transition-all duration-1000 ease-out"
-              strokeWidth="3"
+              strokeWidth="2.5"
               strokeDasharray={circumference}
               style={{ strokeDashoffset: dashoffset }}
               strokeLinecap="round"
@@ -182,22 +194,25 @@ const CircularProgress = ({ percent, remaining }: { percent: number, remaining: 
               r={radius}
             />
           </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center rotate-0">
-            <span className="text-3xl font-black text-white">{percent.toFixed(1)}%</span>
-            <span className="text-[10px] text-slate-300 font-bold uppercase">Recuperado</span>
+          <div className="absolute inset-0 flex flex-col items-center justify-center rotate-0 z-20">
+            <span className="text-4xl sm:text-5xl font-black text-white italic tracking-tighter">{percent.toFixed(0)}<span className="text-xl sm:text-2xl text-emerald-500">%</span></span>
+            <span className="text-[9px] sm:text-[10px] text-slate-500 font-black uppercase tracking-[0.2em] mt-1 italic">Recuperado</span>
           </div>
         </div>
       </div>
-      <div className="border-t border-slate-800 pt-4 mt-6">
-        <div className="flex justify-between items-end mb-1.5">
-          <span className="text-white font-black italic uppercase tracking-[0.2em] text-[10px]">Faltam</span>
-          <span className="font-bold text-slate-200">{remaining}</span>
+      
+      <div className="bg-slate-950/40 rounded-2xl p-6 md:p-8 border border-slate-800/30 mt-8 mb-2">
+        <div className="flex flex-col gap-2 mb-4">
+          <span className="text-slate-400 font-black italic uppercase tracking-[0.2em] text-[10px] md:text-xs">Restante</span>
+          <span className="font-black italic text-white text-2xl md:text-3xl tracking-tighter leading-none">{remaining}</span>
         </div>
-        <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+        <div className="w-full bg-slate-900 h-3 rounded-full overflow-hidden border border-slate-800 shadow-inner">
           <div 
-            className="bg-emerald-500 h-full transition-all duration-1000" 
+            className="bg-gradient-to-r from-emerald-600 to-emerald-400 h-full transition-all duration-1000 relative" 
             style={{ width: `${percent}%` }}
-          />
+          >
+            <div className="absolute top-0 right-0 h-full w-4 bg-white/20 blur-sm animate-pulse" />
+          </div>
         </div>
       </div>
     </div>
@@ -220,6 +235,33 @@ export default function App() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({ totalBill: 0, discountValue: 0 });
   const [newInvestment, setNewInvestment] = useState("");
+  const [newCpf, setNewCpf] = useState("");
+  const [newInstallationDate, setNewInstallationDate] = useState("");
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [isManualAddOpen, setIsManualAddOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [manualForm, setManualForm] = useState({
+    month: new Date().getMonth() + 1,
+    year: new Date().getFullYear(),
+    totalBill: "",
+    discountValue: "",
+    injectedkWh: ""
+  });
+
+  const maskCpf = (val: string) => {
+    const numeric = val.replace(/\D/g, "").slice(0, 11);
+    if (numeric.length <= 3) return numeric;
+    if (numeric.length <= 6) return `${numeric.slice(0, 3)}.${numeric.slice(3)}`;
+    if (numeric.length <= 9) return `${numeric.slice(0, 3)}.${numeric.slice(3, 6)}.${numeric.slice(6)}`;
+    return `${numeric.slice(0, 3)}.${numeric.slice(3, 6)}.${numeric.slice(6, 9)}-${numeric.slice(9)}`;
+  };
+
+  const openSettings = () => {
+    setNewInvestment(settings?.investmentValue?.toString() || "14000");
+    setNewCpf(settings?.cpf ? maskCpf(settings.cpf) : "");
+    setNewInstallationDate(settings?.installationDate || "");
+    setIsSettingsOpen(true);
+  };
 
   // Prepare chart data for growing visualization
   const chartData = useMemo(() => {
@@ -454,24 +496,24 @@ export default function App() {
       const ai = aiRef.current;
       
       const prompt = `
-        Analise esta fatura da Energisa e retorne EXATAMENTE um JSON com este formato:
+        Você é um especialista em faturas de energia solar da Energisa Brasil.
+        Analise esta fatura e extraia os seguintes dados estruturados em JSON:
+        
         {
-          "month": número do mês (1-12),
-          "year": número do ano (ex: 2024),
-          "injectedkWh": total de energia injetada no mês,
-          "discountValue": total de descontos GD aplicados (valor que reduziu a conta),
-          "totalBill": o valor total a pagar da fatura
+          "month": número do mês de referência (1-12),
+          "year": número do ano de referência (ex: 2026),
+          "totalBill": o valor total a pagar da fatura (R$),
+          "discountValue": valor total dos créditos de energia injetada utilizados (soma dos itens negativos como 'Energia Injetada' ou 'Compensação GD'),
+          "injectedkWh": quantidade de kWh injetados no mês (se houver),
+          "isSolar": boolean se identifica sistema solar
         }
         
-        REGRAS CRÍTICAS PARA "discountValue":
-        - Identifique todos os itens com valor NEGATIVO na coluna 'Valor (R$)'.
-        - O "discountValue" deve ser a SOMA ABSOLUTA desses valores negativos (ex: se houver -268,18, retorne 268.18).
-        - IGNORE itens positivos (ex: 'Ajuste GDII') que aumentem a conta.
-        Retorne APENAS o objeto JSON puro, sem blocos de código markdown (\`\`\`json) e sem explicações.
+        IMPORTANTE: Se houver vários itens negativos, some-os para compor o discountValue.
+        Retorne APENAS o JSON puro.
       `;
 
       console.log("Chamando Gemini no frontend...");
-      const result = await ai.models.generateContent({
+      const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
         contents: [
           {
@@ -488,7 +530,7 @@ export default function App() {
         ]
       });
 
-      const responseText = result.text;
+      const responseText = response.text;
       console.log("Gemini Response:", responseText);
 
       // Clean response if AI adds markdown blocks
@@ -575,7 +617,43 @@ export default function App() {
     }
   };
 
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const handleManualAdd = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    
+    try {
+      const alreadyExists = entries.some(e => 
+        Number(e.month) === Number(manualForm.month) && 
+        Number(e.year) === Number(manualForm.year)
+      );
+      
+      if (alreadyExists) {
+        alert(`Já existe um lançamento para ${manualForm.month}/${manualForm.year}.`);
+        return;
+      }
+
+      await addDoc(collection(db, "users", user.uid, "entries"), {
+        month: Number(manualForm.month),
+        year: Number(manualForm.year),
+        totalBill: Number(manualForm.totalBill),
+        discountValue: Number(manualForm.discountValue),
+        injectedkWh: Number(manualForm.injectedkWh) || 0,
+        userId: user.uid,
+        createdAt: serverTimestamp()
+      });
+
+      setIsManualAddOpen(false);
+      setManualForm({ 
+        month: new Date().getMonth() + 1, 
+        year: new Date().getFullYear(),
+        totalBill: "", 
+        discountValue: "", 
+        injectedkWh: "" 
+      });
+    } catch (err) {
+      console.error("Error adding manual entry:", err);
+    }
+  };
 
   const handleDeleteEntry = async (id: string) => {
     if (!user) return;
@@ -591,9 +669,15 @@ export default function App() {
   };
 
   const handleUpdateSettings = async () => {
-    if (!user || isNaN(parseFloat(newInvestment))) return;
+    if (!user) return;
     try {
-      const newSettings = { investmentValue: parseFloat(newInvestment), userId: user.uid };
+      const invValue = parseFloat(newInvestment);
+      const newSettings: UserSettings = { 
+        investmentValue: isNaN(invValue) ? 14000 : invValue, 
+        userId: user.uid,
+        cpf: newCpf.replace(/\D/g, ""), // Save numeric only
+        installationDate: newInstallationDate
+      };
       await setDoc(doc(db, "users", user.uid, "settings", "main"), newSettings);
       setSettings(newSettings);
       setIsSettingsOpen(false);
@@ -612,297 +696,119 @@ export default function App() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-[#0a0f18] flex flex-col items-center justify-center p-6 text-center">
-        <div className="mb-8 p-6 bg-emerald-500/10 rounded-3xl border border-emerald-500/20 shadow-2xl shadow-emerald-500/10">
-          <Sun size={64} className="text-emerald-500" />
+      <div className="min-h-screen bg-[#05080c] flex flex-col items-center justify-center p-6 text-center relative overflow-hidden">
+        {/* Background Accents */}
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-emerald-500/10 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/10 rounded-full blur-[100px]" />
+        
+        <div className="relative z-10 mb-12 animate-in fade-in zoom-in duration-1000">
+          <div className="p-8 bg-emerald-500 rounded-[2.5rem] shadow-[0_0_80px_-12px_rgba(16,185,129,0.5)] rotate-6 hover:rotate-0 transition-all duration-700">
+            <Sun size={80} className="text-white" />
+          </div>
         </div>
-        <h1 className="text-5xl font-black text-white mb-3 uppercase italic tracking-tight">Solai</h1>
-        <p className="text-slate-400 max-w-md mb-10 text-base font-medium leading-relaxed">
-          Acompanhe o retorno do seu investimento em energia solar de forma fácil e automática através das suas faturas.
+        
+        <h1 className="relative z-10 text-8xl md:text-9xl font-black text-white mb-6 uppercase italic tracking-tighter animate-in slide-in-from-bottom-8 duration-700">
+          SOL<span className="text-emerald-500">AI</span>
+        </h1>
+        
+        <p className="relative z-10 text-slate-400 max-w-lg mb-12 text-lg md:text-xl font-bold uppercase tracking-widest leading-loose italic opacity-60 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
+          Inteligência Artificial aplicada ao seu retorno energético
         </p>
+        
         <button 
           onClick={handleLogin} 
-          className="flex items-center gap-3 bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-4 rounded-2xl font-black italic uppercase tracking-wider transition-all shadow-xl shadow-emerald-600/20 active:scale-95 group"
+          className="relative z-10 flex items-center gap-4 bg-emerald-600 hover:bg-emerald-500 text-white px-12 py-6 rounded-[2.5rem] font-black italic uppercase tracking-[0.2em] transition-all shadow-[0_20px_50px_rgba(16,185,129,0.3)] active:scale-95 group animate-in fade-in slide-in-from-bottom-4 duration-700 delay-500"
         >
-          <LayoutDashboard size={20} className="group-hover:rotate-12 transition-transform" />
-          Entrar com Google
+          <LayoutDashboard size={28} className="group-hover:rotate-12 transition-transform" />
+          CONECTAR COM GOOGLE
         </button>
+
+        <div className="absolute bottom-8 text-[10px] text-slate-700 font-black uppercase tracking-[0.5em] italic">
+          SECURE ENCRYPTED ACCESS • v2.0 PREMIUM
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0f18] text-slate-300 font-sans p-4 sm:p-8">
+    <div className="min-h-screen flex flex-col bg-[#05080c] text-slate-300 font-sans selection:bg-emerald-500/30 overflow-x-hidden">
       {/* Header */}
-      <header className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-6">
-        <div className="w-full md:w-auto">
-          <div className="flex items-center gap-2 mb-1">
-            <Sun className="text-emerald-500" size={24} />
-            <h1 className="text-2xl font-bold tracking-tight text-white uppercase italic">Solai</h1>
-          </div>
-          <p className="text-slate-400 text-sm font-medium">Monitoramento de Retorno Energético • {user.displayName}</p>
-        </div>
-        
-        <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-          <div className="bg-slate-900 border border-slate-800 px-4 py-2 rounded-xl shadow-sm flex items-center justify-between sm:justify-start gap-4 hover:border-emerald-500/30 transition-colors">
-            <div>
-              <span className="text-[10px] text-slate-400 block uppercase font-bold tracking-wider underline decoration-emerald-500/30 decoration-2 underline-offset-4">Investimento</span>
-              <span 
-                className="text-lg font-black italic text-white cursor-pointer hover:text-emerald-500 transition-colors"
-                onClick={() => {
-                  setNewInvestment(investmentValue.toString());
-                  setIsSettingsOpen(true);
-                }}
-              >
-                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(investmentValue)}
-              </span>
+      <header className="sticky top-0 z-50 bg-[#05080c]/90 backdrop-blur-3xl border-b border-slate-900 shadow-2xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 py-4 flex flex-col justify-between items-center lg:flex-row gap-6">
+          <div className="flex items-center gap-4 sm:gap-6 group cursor-default self-start lg:self-center">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-emerald-500/40 rotate-12 group-hover:rotate-0 transition-all duration-700">
+              <Sun className="text-white w-6 h-6 sm:w-8 sm:h-8" />
             </div>
-            <button 
-              onClick={() => setIsSettingsOpen(true)}
-              className="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white transition-colors sm:hidden"
-            >
-              <Pencil size={14} />
-            </button>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-black italic tracking-tighter leading-none">
+                SOL<span className="text-emerald-500">AI</span>
+              </h1>
+              <div className="flex items-center gap-3 mt-1 sm:mt-2">
+                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                <p className="text-[8px] sm:text-[10px] text-slate-500 font-black uppercase tracking-[0.3em] sm:tracking-[0.4em] italic leading-none truncate max-w-[150px] sm:max-w-none">Yield Dashboard • {user.displayName}</p>
+              </div>
+            </div>
           </div>
-          
-          <div className="flex gap-4 w-full sm:w-auto">
+
+          <div className="flex flex-wrap items-center justify-center lg:justify-end gap-3 sm:gap-4 bg-slate-900/40 p-2 sm:p-3 rounded-[2rem] border border-slate-800 shadow-inner w-full lg:w-auto">
+            <div className="bg-slate-950 border border-slate-800/50 px-4 sm:px-8 py-3 sm:py-4 rounded-2xl shadow-xl flex items-center gap-4 sm:gap-6 group hover:border-emerald-500/30 transition-all flex-1 sm:flex-none">
+              <div>
+                <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.3em] leading-none mb-2 italic">Volume Investido</p>
+                <p 
+                  className="text-xl sm:text-2xl font-black italic text-white cursor-pointer hover:text-emerald-500 transition-colors leading-none tracking-tighter"
+                  onClick={openSettings}
+                >
+                  {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(investmentValue)}
+                </p>
+              </div>
+              <button 
+                onClick={openSettings}
+                className="p-2 sm:p-3 rounded-xl bg-slate-900 text-slate-500 hover:text-emerald-400 hover:bg-emerald-500/10 transition-all border border-transparent hover:border-emerald-500/20"
+              >
+                <Pencil size={14} className="sm:w-4 sm:h-4" />
+              </button>
+            </div>
+            
             <div 
               onClick={isDriveConnected ? handleDisconnectDrive : handleConnectDrive}
               className={cn(
-                "flex-1 sm:flex-none px-4 py-2 rounded-xl shadow-sm cursor-pointer transition-all border flex items-center gap-3",
+                "px-4 sm:px-8 py-3 sm:py-4 rounded-2xl cursor-pointer transition-all border flex items-center gap-4 sm:gap-6 shadow-xl group flex-1 sm:flex-none",
                 isDriveConnected 
-                  ? "bg-emerald-500/5 border-emerald-500/10 text-emerald-400 hover:bg-emerald-500/10" 
-                  : "bg-blue-500/5 border-blue-500/10 text-blue-400 hover:bg-blue-500/10"
+                  ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" 
+                  : "bg-slate-950 border-slate-800 text-slate-600 hover:border-blue-500/30 hover:text-blue-400"
               )}
             >
               <div className={cn(
-                "p-1.5 rounded-lg",
-                isDriveConnected ? "bg-emerald-500 text-white" : "bg-blue-500 text-white shadow-lg shadow-blue-500/20"
+                "w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all duration-500",
+                isDriveConnected ? "bg-emerald-500 text-white shadow-xl shadow-emerald-500/20" : "bg-slate-800 text-slate-600 group-hover:bg-blue-500 group-hover:text-white group-hover:shadow-xl group-hover:shadow-blue-500/20"
               )}>
-                <HardDrive size={14} />
+                <HardDrive size={16} className="sm:w-5 sm:h-5" />
               </div>
-              <div>
-                <span className="text-[10px] block uppercase font-bold tracking-wider opacity-70">Google Drive</span>
-                <span className="text-xs font-bold leading-tight">
-                  {isDriveConnected ? "Conectado" : "Conectar"}
+              <div className="flex flex-col">
+                <span className="text-[7px] font-black uppercase tracking-[0.3em] leading-none mb-1 sm:mb-1.5 italic">Vault</span>
+                <span className="text-[9px] font-black uppercase italic tracking-[0.1em] leading-none">
+                  {isDriveConnected ? "Conectado" : "Link"}
                 </span>
               </div>
             </div>
 
-            <Button variant="ghost" size="sm" onClick={handleLogout} className="text-slate-400 hover:text-rose-600 self-center h-12 w-12 sm:h-auto sm:w-auto rounded-xl bg-slate-900 border border-slate-800 sm:border-0 sm:bg-transparent">
-              <LogOut size={18} />
+            <Button variant="ghost" className="h-10 w-10 sm:h-14 sm:w-14 flex items-center justify-center p-0 rounded-2xl border border-slate-800/50 bg-slate-950 text-slate-600 hover:text-rose-500 hover:bg-rose-500/10 hover:border-rose-500/20 shadow-xl" onClick={handleLogout}>
+              <LogOut size={20} className="sm:w-6 sm:h-6" />
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Column: Stats and Charts */}
-        <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6">
-          {/* Progress Card */}
-          <Card className="p-6 sm:col-span-2 lg:col-span-1">
-            <CircularProgress 
-              percent={progressPercent} 
-              remaining={new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(remainingValue)} 
-            />
-          </Card>
-
-          {/* Recovery Stats */}
-          <StatCard 
-            title="Total Recuperado" 
-            value={new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalRecovered)} 
-            icon={CheckCircle2}
-            variant="emerald"
-          />
-
-          <StatCard 
-            title="Estimativa de Payback" 
-            value={remainingValue > 0 
-              ? `Faltam ~${formatMonths(Math.ceil(estimatedMonthsRemaining))}` 
-              : paybackInfo.reached 
-                ? `Atingido em ${formatMonths(paybackInfo.months)}`
-                : "Atingido!"
-            } 
-            icon={TrendingUp}
-            trend={remainingValue > 0 ? "Falta" : "Concluído"}
-            trendColor={remainingValue > 0 ? "bg-amber-500/10 text-amber-500" : "bg-emerald-500/10 text-emerald-500"}
-          />
-
-          <div className="sm:col-span-2 lg:col-span-1 space-y-6">
-            <StatCard 
-              title="Tempo de Projeto" 
-              value={formatMonths(entries.length)} 
-              icon={Calendar}
-              trend={remainingValue === 0 ? "Pago!" : "Em progresso"}
-              trendColor={remainingValue === 0 ? "bg-emerald-500/10 text-emerald-400" : "bg-amber-500/10 text-amber-400"}
-            />
-
-            {/* Chart Card */}
-            <Card 
-              className={cn(
-                "p-6 flex flex-col gap-4 overflow-hidden transition-all duration-500 cursor-pointer group bg-slate-900/50",
-                isChartExpanded 
-                  ? "fixed inset-0 sm:inset-[5%] md:inset-[10%] z-50 shadow-2xl border-slate-800 backdrop-blur-xl force-landscape-chart" 
-                  : "relative hover:border-emerald-500/30 min-h-[250px]"
-              )}
-              onClick={() => setIsChartExpanded(!isChartExpanded)}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={cn(
-                    "flex items-center justify-center rounded-xl transition-all",
-                    isChartExpanded ? "w-10 h-10 md:w-12 md:h-12 bg-emerald-500 text-white shadow-lg shadow-emerald-500/20" : "w-8 h-8 bg-emerald-500/10 text-emerald-400"
-                  )}>
-                    <Activity size={isChartExpanded ? 24 : 16} />
-                  </div>
-                  <div>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-none">Crescimento de Retorno</p>
-                    <p className={cn("font-bold text-white uppercase tracking-tight", isChartExpanded ? "text-lg md:text-xl" : "text-xs")}>
-                      {isChartExpanded ? "Análise Estratégica" : "Evolução"}
-                    </p>
-                  </div>
-                </div>
-                {!isChartExpanded && (
-                  <div className="text-[10px] text-emerald-400 font-bold flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-full">
-                    <Plus size={12} />
-                  </div>
-                )}
-                {isChartExpanded && (
-                  <button className="p-2 hover:bg-slate-800 rounded-full text-slate-400 transition-colors">
-                    <X size={24} />
-                  </button>
-                )}
-              </div>
-              
-              <div className={cn("w-full transition-all duration-500", isChartExpanded ? "flex-1 mt-4 md:mt-8" : "flex-1 h-32 md:h-44")}>
-                {chartData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%" minHeight={isChartExpanded ? 200 : 100}>
-                    <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="colorRecovered" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.2}/>
-                        <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    
-                    <CartesianGrid 
-                      strokeDasharray="4 4" 
-                      vertical={false} 
-                      stroke={isChartExpanded ? "rgba(255, 255, 255, 0.05)" : "transparent"} 
-                    />
-                    
-                    <XAxis 
-                      dataKey="name" 
-                      hide={!isChartExpanded}
-                      axisLine={false} 
-                      tickLine={false} 
-                      tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 600 }}
-                      dy={10}
-                    />
-
-                    <YAxis 
-                      hide={!isChartExpanded}
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 600 }}
-                      tickFormatter={(value) => `R$ ${value}`}
-                    />
-
-                    <Tooltip 
-                      cursor={{ stroke: '#10b981', strokeWidth: 1, strokeDasharray: '5 5' }}
-                      contentStyle={{ 
-                        borderRadius: '20px', 
-                        border: '1px solid rgba(255, 255, 255, 0.1)', 
-                        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)',
-                        padding: '16px',
-                        background: 'rgba(15, 23, 42, 0.9)',
-                        backdropFilter: 'blur(8px)'
-                      }}
-                      itemStyle={{ fontSize: '12px', fontWeight: 600, color: '#f8fafc' }}
-                      labelStyle={{ marginBottom: '8px', color: '#94a3b8', fontWeight: 700, fontSize: '10px', textTransform: 'uppercase' }}
-                      formatter={(value: any, name: string) => [
-                        new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value), 
-                        name === 'recovered' ? 'Acumulado' : 'Investimento'
-                      ]}
-                    />
-
-                    <Area 
-                      type="monotone" 
-                      dataKey="recovered" 
-                      stroke="#10b981" 
-                      strokeWidth={4}
-                      fillOpacity={1} 
-                      fill="url(#colorRecovered)" 
-                      name="recovered"
-                      activeDot={{ r: 6, strokeWidth: 0, fill: '#10b981' }}
-                    />
-                    
-                    {isChartExpanded && (
-                      <Area
-                        type="step"
-                        dataKey="payback"
-                        stroke="#f43f5e"
-                        strokeWidth={2}
-                        strokeDasharray="8 8"
-                        fill="transparent"
-                        name="payback"
-                        activeDot={false}
-                      />
-                    )}
-                  </AreaChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="h-full flex flex-col items-center justify-center text-slate-300 gap-2">
-                  <Activity size={32} className="opacity-20" />
-                  <span className="text-[10px] font-bold uppercase tracking-widest">Aguardando Lançamentos</span>
-                </div>
-              )}
-            </div>
-            
-            {isChartExpanded && (
-              <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
-                <div className="p-4 md:p-5 rounded-2xl bg-slate-900 border border-slate-800">
-                  <p className="text-[10px] text-slate-500 font-bold uppercase mb-1">Média Mensal</p>
-                  <p className="text-lg md:text-xl font-bold text-slate-100 italic">
-                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalRecovered / (entries.length || 1))}
-                  </p>
-                </div>
-                <div className="p-4 md:p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20">
-                  <p className="text-[10px] text-emerald-400 font-bold uppercase mb-1">Total Recuperado</p>
-                  <p className="text-lg md:text-xl font-bold text-emerald-500 italic">
-                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalRecovered)}
-                  </p>
-                </div>
-                <div className="p-4 md:p-5 rounded-2xl bg-rose-500/10 border border-rose-500/20">
-                  <p className="text-[10px] text-rose-400 font-bold uppercase mb-1">Falta para Payback</p>
-                  <p className="text-lg md:text-xl font-bold text-rose-500 italic">
-                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(remainingValue)}
-                  </p>
-                </div>
-                <div className="p-4 md:p-5 rounded-2xl bg-blue-500/10 border border-blue-500/20">
-                  <p className="text-[10px] text-blue-400 font-bold uppercase mb-1">Lucro Real</p>
-                  <p className="text-lg md:text-xl font-bold text-blue-500 italic">
-                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(profitValue)}
-                  </p>
-                </div>
-              </div>
-            )}
-          </Card>
-
-          {isChartExpanded && (
-            <div 
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-all focus:outline-none"
-              onClick={() => setIsChartExpanded(false)}
-            />
-          )}
-
-          {/* Upload Card - Enhanced Dropzone */}
+      <main className="max-w-[1800px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mt-8 px-4 pb-20">
+        {/* Left Column: Stats, Charts, and Upload */}
+        <div className="lg:col-span-3 space-y-8 animate-in fade-in slide-in-from-left-4 duration-700">
+          {/* Upload Card - Moved to TOP of Left Column */}
           <Card 
             className={cn(
-              "p-6 transition-all duration-300 relative overflow-hidden border-2 border-dashed",
+              "p-8 transition-all duration-500 relative overflow-hidden border-2 border-dashed group",
               isDragging 
-                ? "bg-emerald-50/50 border-emerald-400 scale-[1.02] shadow-lg shadow-emerald-100" 
-                : "bg-slate-900 border-slate-800 hover:border-slate-700"
+                ? "bg-emerald-500/10 border-emerald-400 scale-[1.02] shadow-2xl shadow-emerald-500/20" 
+                : "bg-slate-900 border-slate-800 hover:border-emerald-500/20"
             )}
             onDragOver={(e) => {
               e.preventDefault();
@@ -916,36 +822,36 @@ export default function App() {
               if (file) handleFileUpload(file);
             }}
           >
-            <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
-              <Upload size={80} className={isDragging ? "text-emerald-500" : "text-emerald-400"} />
+            <div className="absolute -top-10 -right-10 opacity-5 group-hover:opacity-10 transition-all duration-700 -rotate-12">
+              <Upload size={240} className={isDragging ? "text-emerald-500" : "text-emerald-400"} />
             </div>
             
             <div className="relative z-10 flex flex-col items-center text-center">
               <div className={cn(
-                "w-12 h-12 rounded-full flex items-center justify-center mb-4 transition-all duration-500",
-                isDragging ? "bg-emerald-500 text-white scale-110" : "bg-emerald-500/10 text-emerald-400"
+                "w-20 h-20 rounded-3xl flex items-center justify-center mb-6 transition-all duration-700 shadow-2xl",
+                isDragging ? "bg-emerald-500 text-white scale-110 rotate-3" : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
               )}>
                 {isUploading ? (
-                  <RefreshCw className="animate-spin" size={24} />
+                  <RefreshCw className="animate-spin" size={32} />
                 ) : (
-                  <Upload size={24} />
+                  <FileUp size={32} />
                 )}
               </div>
               
               <h4 className={cn(
-                "font-bold text-base mb-1 transition-colors",
-                isDragging ? "text-emerald-900" : "text-white"
+                "font-black text-2xl mb-2 transition-colors uppercase italic tracking-tighter",
+                isDragging ? "text-emerald-400" : "text-white"
               )}>
-                {isUploading ? "Processando Fatura..." : "Leitura Inteligente"}
+                {isUploading ? "Processando..." : "Arquivar Nova Conta"}
               </h4>
               
               <p className={cn(
-                "text-xs mb-6 max-w-[200px] leading-relaxed transition-colors",
-                isDragging ? "text-emerald-700/70" : "text-slate-400"
+                "text-xs mb-8 max-w-[240px] leading-relaxed transition-colors font-bold uppercase tracking-widest opacity-60",
+                isDragging ? "text-emerald-300" : "text-slate-500"
               )}>
                 {isDragging 
                   ? "Solte para iniciar o upload" 
-                  : "Arraste sua fatura PDF para processar o desconto"}
+                  : "Arraste o PDF para extração automática via Inteligência Artificial"}
               </p>
               
               <input 
@@ -956,122 +862,345 @@ export default function App() {
                 onChange={handleFileUpload}
               />
 
-              <Button 
-                variant={isDragging ? "primary" : "outline"} 
-                size="md" 
-                disabled={isUploading}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  fileInputRef.current?.click();
-                }}
-                className={cn(
-                  "w-full transition-all",
-                  isDragging 
-                    ? "bg-emerald-600 border-none hover:bg-emerald-700" 
-                    : "border-slate-700 text-slate-300 hover:text-white hover:bg-slate-800"
-                )}
-              >
-                {isUploading ? "Aguarde..." : "Selecionar Arquivo"}
-              </Button>
+              <div className="grid grid-cols-1 gap-4 w-full">
+                <Button 
+                  variant={isDragging ? "primary" : "outline"} 
+                  size="lg" 
+                  disabled={isUploading}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    fileInputRef.current?.click();
+                  }}
+                  className={cn(
+                    "w-full transition-all py-4 h-auto rounded-2xl italic font-black uppercase tracking-widest",
+                    isDragging 
+                      ? "bg-emerald-600 border-none hover:bg-emerald-700 shadow-xl shadow-emerald-600/20" 
+                      : "border-slate-800 bg-slate-950 text-slate-400 hover:text-white hover:bg-slate-800 hover:border-slate-700"
+                  )}
+                >
+                  {isUploading ? <RefreshCw size={20} className="mr-3 animate-spin"/> : <FileUp size={20} className="mr-3" />}
+                  {isUploading ? "PROCESSANDO..." : "IMPORTAR PDF"}
+                </Button>
+
+                <Button 
+                  variant="outline" 
+                  size="lg" 
+                  className="w-full transition-all py-4 h-auto rounded-2xl border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 italic font-black uppercase tracking-widest"
+                  onClick={() => setIsManualAddOpen(true)}
+                >
+                  <Plus size={20} className="mr-3" />
+                  LANÇAMENTO MANUAL
+                </Button>
+              </div>
               
               {uploadError && (
-                <p className="text-rose-400 text-[10px] mt-4 font-medium px-2 py-1 bg-rose-500/10 rounded-lg animate-in fade-in slide-in-from-top-2">
+                <div className="flex items-center gap-3 text-rose-400 text-xs mt-6 font-bold px-4 py-3 bg-rose-500/10 border border-rose-500/20 rounded-xl animate-in fade-in slide-in-from-top-2">
+                  <AlertCircle size={16} />
                   {uploadError}
-                </p>
+                </div>
               )}
             </div>
           </Card>
+
+          {/* Progress Card */}
+          <Card className="p-8 sm:col-span-2 lg:col-span-1 shadow-2xl shadow-emerald-500/5 border-slate-800/50">
+            <CircularProgress 
+              percent={progressPercent} 
+              remaining={new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(remainingValue)} 
+            />
+          </Card>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-6">
+            {/* Recovery Stats */}
+            <StatCard 
+              title="Total Recuperado" 
+              value={new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalRecovered)} 
+              icon={CheckCircle2}
+              variant="emerald"
+            />
+
+            <StatCard 
+              title="Estimativa Payback" 
+              value={remainingValue > 0 
+                ? `~${formatMonths(Math.ceil(estimatedMonthsRemaining))}` 
+                : paybackInfo.reached 
+                  ? `${formatMonths(paybackInfo.months)}`
+                  : "Atingido!"
+              } 
+              icon={TrendingUp}
+              trend={remainingValue > 0 ? "Em Curso" : "Concluído"}
+              trendColor={remainingValue > 0 ? "bg-amber-500/10 text-amber-500 border border-amber-500/20" : "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"}
+            />
+
+            <StatCard 
+              title="Tempo de Projeto" 
+              value={formatMonths(entries.length)} 
+              icon={Calendar}
+              trend={remainingValue === 0 ? "Pago!" : "Em progresso"}
+              trendColor={remainingValue === 0 ? "bg-emerald-500/10 text-emerald-400" : "bg-slate-800 text-slate-500"}
+            />
+          </div>
+
+          {/* Chart Card (Moved to Left) */}
+          <Card 
+            className={cn(
+              "flex flex-col gap-4 overflow-hidden transition-all duration-700 cursor-pointer group bg-slate-900 shadow-2xl relative",
+              isChartExpanded 
+                ? "fixed inset-0 sm:inset-[5%] z-50 p-10 border-emerald-500/20 backdrop-blur-3xl" 
+                : "p-8 hover:border-emerald-500/30 min-h-[350px] border-slate-800"
+            )}
+            onClick={() => setIsChartExpanded(!isChartExpanded)}
+          >
+            <div className="flex items-center justify-between z-10">
+              <div className="flex items-center gap-4">
+                <div className={cn(
+                  "flex items-center justify-center rounded-2xl transition-all duration-500 shadow-xl shadow-emerald-500/10",
+                  isChartExpanded ? "w-16 h-16 bg-emerald-500 text-white" : "w-12 h-12 bg-emerald-500/10 text-emerald-400"
+                )}>
+                  <Activity size={isChartExpanded ? 32 : 24} />
+                </div>
+                <div>
+                  <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.3em] leading-none mb-1">Indicador de Performance</p>
+                  <p className={cn("font-black text-white italic uppercase tracking-tighter leading-none", isChartExpanded ? "text-3xl" : "text-xl")}>
+                    {isChartExpanded ? "Análise Estratégica" : "Evolução do Ativo"}
+                  </p>
+                </div>
+              </div>
+              
+              {!isChartExpanded && (
+                <div className="flex items-center gap-3">
+                  <div className="text-[10px] text-emerald-400 font-black flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 rounded-xl opacity-0 group-hover:opacity-100 transition-all uppercase tracking-widest italic">
+                    Expurgar Dados <ChevronRight size={14} />
+                  </div>
+                </div>
+              )}
+              
+              {isChartExpanded && (
+                <button className="p-3 hover:bg-slate-800 rounded-2xl text-slate-400 transition-all active:scale-95 shadow-lg">
+                  <X size={32} />
+                </button>
+              )}
+            </div>
+            
+            <div className={cn("w-full transition-all duration-700 flex flex-col", isChartExpanded ? "flex-1 mt-12" : "h-[280px] mt-4")}>
+              {chartData.length > 0 ? (
+                <div className="flex-1 w-full min-h-0 bg-slate-950/30 rounded-2xl p-4 border border-slate-800/50">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 10 }}>
+                      <defs>
+                        <linearGradient id="colorRecovered" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#10b981" stopOpacity={0.6}/>
+                          <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                        </linearGradient>
+                        <linearGradient id="colorPayback" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.1}/>
+                          <stop offset="95%" stopColor="#f43f5e" stopOpacity={0}/>
+                        </linearGradient>
+                      </defs>
+                      <CartesianGrid 
+                        strokeDasharray="5 5" 
+                        vertical={false} 
+                        stroke="rgba(255, 255, 255, 0.05)" 
+                      />
+                      <XAxis 
+                        dataKey="name" 
+                        hide={!isChartExpanded}
+                        axisLine={false}
+                        tickLine={false} 
+                        tick={{ fill: '#475569', fontSize: 10, fontWeight: 700 }}
+                      />
+                      <YAxis 
+                        hide={!isChartExpanded}
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fill: '#475569', fontSize: 9, fontWeight: 900 }}
+                        tickFormatter={(v) => `R$${Math.floor(v/1000)}k`}
+                      />
+                      <Tooltip 
+                        contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #1e293b', borderRadius: '16px', fontSize: '12px' }}
+                        itemStyle={{ color: '#10b981', fontWeight: 'bold' }}
+                        cursor={{ stroke: '#10b981', strokeWidth: 1, strokeDasharray: '4 4' }}
+                      />
+                      <Area 
+                        type="monotone" 
+                        dataKey="recovered" 
+                        stroke="#10b981" 
+                        strokeWidth={4}
+                        fillOpacity={1} 
+                        fill="url(#colorRecovered)" 
+                        name="Acumulado"
+                        animationDuration={1500}
+                      />
+                      {isChartExpanded && (
+                        <Area
+                          type="stepAfter"
+                          dataKey="payback"
+                          stroke="#f43f5e"
+                          strokeWidth={1}
+                          strokeDasharray="8 8"
+                          fill="url(#colorPayback)"
+                          name="Meta Payback"
+                          animationDuration={1000}
+                        />
+                      )}
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              ) : (
+                <div className="h-full flex flex-col items-center justify-center text-slate-700 gap-4">
+                  <Activity size={64} className="opacity-10 animate-pulse" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.5em] italic">Aguardando Inteligência</span>
+                </div>
+              )}
+            </div>
+            
+            {isChartExpanded && (
+              <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {[
+                  { label: "Média Mensal", value: totalRecovered / (entries.length || 1), color: "slate" },
+                  { label: "Total Desconto", value: totalRecovered, color: "emerald" },
+                  { label: "Payback Restante", value: remainingValue, color: "rose" },
+                  { label: "Lucro Real", value: profitValue, color: "blue" }
+                ].map((stat, i) => (
+                  <div key={i} className="p-6 rounded-3xl bg-slate-950 border border-slate-800 shadow-xl transition-all hover:border-slate-700">
+                    <p className="text-[10px] text-slate-600 font-black uppercase tracking-widest mb-2 italic">{stat.label}</p>
+                    <p className={cn("text-2xl font-black italic tracking-tighter", `text-${stat.color}-500 text-white`)}>
+                      {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(stat.value)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
+
+          {isChartExpanded && (
+            <div 
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-all focus:outline-none"
+              onClick={() => setIsChartExpanded(false)}
+            />
+          )}
+
         </div>
-      </div>
+
 
         {/* Right Column: History Table */}
-        <div className="lg:col-span-9">
-          <Card className="flex flex-col min-h-[600px] lg:min-h-[800px]">
-            <div className="p-6 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-900/50 sticky top-0 z-10 backdrop-blur-md gap-4">
-              <div className="flex items-center gap-3">
-                <div className="w-1.5 h-8 bg-emerald-500 rounded-full" />
-                <h3 className="text-white font-black tracking-tight uppercase italic text-lg">Histórico de Lançamentos</h3>
+        <div className="lg:col-span-9 space-y-8 animate-in fade-in slide-in-from-right-4 duration-700">
+          <Card className="flex flex-col min-h-[900px] h-fit overflow-hidden border-slate-800 bg-slate-900/40 shadow-2xl">
+            {/* Header do Card (Título e Filtros) */}
+            <div className="shrink-0 p-8 border-b border-slate-800/50 flex flex-col xl:flex-row justify-between items-start xl:items-center bg-slate-900 shadow-xl gap-6 z-30">
+              <div className="flex items-center gap-6">
+                <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-400">
+                  <History size={28} />
+                </div>
+                <div className="flex flex-col">
+                  <h3 className="text-white font-black tracking-tighter uppercase italic text-3xl leading-none">Histórico de Lançamentos</h3>
+                </div>
               </div>
-              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest sm:hidden">Deslize para ver mais →</p>
+              
+              <div className="flex items-center gap-2 bg-slate-950 border border-slate-800 rounded-2xl p-1.5 shadow-inner">
+                <button 
+                  onClick={() => setSortOrder('desc')}
+                  className={cn(
+                    "px-6 py-2 rounded-xl text-[10px] font-black uppercase italic transition-all tracking-widest",
+                    sortOrder === 'desc' ? "bg-emerald-600 text-white shadow-lg" : "text-slate-500 hover:text-slate-300"
+                  )}
+                >
+                  Recentes
+                </button>
+                <button 
+                  onClick={() => setSortOrder('asc')}
+                  className={cn(
+                    "px-6 py-2 rounded-xl text-[10px] font-black uppercase italic transition-all tracking-widest",
+                    sortOrder === 'asc' ? "bg-emerald-600 text-white shadow-lg" : "text-slate-500 hover:text-slate-300"
+                  )}
+                >
+                  Antigos
+                </button>
+              </div>
             </div>
-            <div className="flex-1">
+
+            {/* Container com Scroll para o conteúdo */}
+            <div className="flex-1 overflow-x-auto scrollbar-hide relative bg-transparent custom-scrollbar">
               {/* Desktop View: Table */}
-              <div className="hidden lg:block overflow-x-auto scrollbar-hide">
-                <table className="w-full text-left min-w-[700px]">
-                  <thead className="sticky top-0 bg-slate-900 text-slate-200 uppercase text-[10px] font-black z-10 border-b border-slate-800">
-                    <tr>
-                      <th className="px-4 md:px-5 py-4">Ref.</th>
-                      <th className="px-4 md:px-5 py-4 text-right">Valor Conta</th>
-                      <th className="px-4 md:px-5 py-4 text-right">Desconto</th>
-                      <th className="px-4 md:px-5 py-4 text-right">Saldo Restante</th>
-                      <th className="px-4 md:px-5 py-4 text-center">Fatura</th>
-                      <th className="px-4 md:px-5 py-4 text-center">Ações</th>
+              <div className="hidden lg:block">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="z-30">
+                      <th className="sticky top-0 z-30 px-10 py-8 text-[13px] font-black uppercase tracking-widest text-slate-500 italic border-b border-slate-800 bg-slate-950/95 backdrop-blur-xl">Competência</th>
+                      <th className="sticky top-0 z-30 px-10 py-8 text-[13px] font-black uppercase tracking-widest text-slate-500 italic border-b border-slate-800 bg-slate-950/95 backdrop-blur-xl text-right">Valor Conta</th>
+                      <th className="sticky top-0 z-30 px-10 py-8 text-[13px] font-black uppercase tracking-widest text-emerald-500 italic border-b border-slate-800 bg-slate-950/95 backdrop-blur-xl text-right">Desconto</th>
+                      <th className="sticky top-0 z-30 px-10 py-8 text-[13px] font-black uppercase tracking-widest text-slate-500 italic border-b border-slate-800 bg-slate-950/95 backdrop-blur-xl text-right">Saldo Restante</th>
+                      <th className="sticky top-0 z-30 px-10 py-8 text-[13px] font-black uppercase tracking-widest text-slate-500 italic border-b border-slate-800 bg-slate-950/95 backdrop-blur-xl text-center">Fatura</th>
+                      <th className="sticky top-0 z-30 px-10 py-8 text-[13px] font-black uppercase tracking-widest text-slate-500 italic border-b border-slate-800 bg-slate-950/95 backdrop-blur-xl text-center">Ações</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-800/10">
+                  <tbody className="divide-y divide-slate-800/40">
                     {entries.length > 0 ? (() => {
                       let runningBalance = investmentValue;
+                      // 1. Calculate Balance with ORIGINAL ASC ORDER
                       const rowsWithBalance = entries.map(entry => {
                         runningBalance = Math.max(0, runningBalance - entry.discountValue);
                         return { ...entry, balanceAtTime: runningBalance };
                       });
                       
-                      return rowsWithBalance.reverse().map((entry) => (
-                        <tr key={entry.id} className="hover:bg-slate-800/10 transition-all group border-l-2 border-l-transparent hover:border-l-emerald-500/50">
-                          <td className="px-4 md:px-5 py-4 font-black italic text-white text-sm md:text-base whitespace-nowrap">
+                      // 2. Apply Visual Order
+                      const finalDisplay = sortOrder === 'desc' ? [...rowsWithBalance].reverse() : rowsWithBalance;
+                      
+                      return finalDisplay.map((entry) => (
+                        <tr key={entry.id} className="hover:bg-slate-900/40 transition-all duration-300 group">
+                          <td className="px-10 py-8 font-black italic text-white text-xl whitespace-nowrap tracking-tighter">
                             {entry.month.toString().padStart(2, '0')}/{entry.year}
                           </td>
-                          <td className="px-4 md:px-5 py-4 text-right text-slate-100 font-mono text-sm md:text-base font-medium">
+                          <td className="px-10 py-8 text-right text-slate-400 font-black italic text-lg group-hover:text-slate-200 transition-colors">
                             {editingId === entry.id ? (
-                              <div className="relative inline-block">
-                                <span className="absolute left-1.5 top-1/2 -translate-y-1/2 text-[8px] text-slate-500 font-bold italic">R$</span>
-                                <input 
-                                  type="number" 
-                                  className="w-20 sm:w-28 pl-6 pr-1 py-1 bg-slate-950 border border-slate-700 rounded-md text-right text-xs text-white focus:ring-1 focus:ring-emerald-500/50 outline-none transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                  value={editForm.totalBill}
-                                  onChange={(e) => setEditForm({ ...editForm, totalBill: Number(e.target.value) })}
-                                  autoFocus
-                                />
-                              </div>
+                               <div className="flex items-center justify-end gap-2 pr-2">
+                                 <span className="text-[10px] text-slate-600 font-black italic select-none">R$</span>
+                                 <input 
+                                   type="text" 
+                                   inputMode="decimal"
+                                   className="w-24 bg-transparent border-b border-emerald-500/50 text-right text-white text-xl focus:ring-0 outline-none font-black italic pr-2"
+                                   value={editForm.totalBill}
+                                   onChange={(e) => setEditForm({ ...editForm, totalBill: e.target.value.replace(/[^0-9.]/g, '') === '' ? 0 : Number(e.target.value.replace(/[^0-9.]/g, '')) })}
+                                   autoFocus
+                                 />
+                               </div>
                             ) : (
                               entry.totalBill ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(entry.totalBill) : '—'
                             )}
                           </td>
-                          <td className="px-4 md:px-5 py-4 text-right font-black italic text-emerald-400 font-mono text-sm md:text-base tracking-tight">
+                          <td className="px-10 py-8 text-right font-black italic text-emerald-400 text-xl">
                             {editingId === entry.id ? (
-                              <div className="flex items-center justify-end">
-                                <div className="relative inline-block">
-                                  <span className="absolute left-1.5 top-1/2 -translate-y-1/2 text-[8px] text-emerald-600 font-bold italic">-R$</span>
-                                  <input 
-                                    type="number" 
-                                    className="w-20 sm:w-28 pl-8 pr-1 py-1 bg-slate-950 border border-emerald-500/30 rounded-md text-right text-emerald-400 text-xs focus:ring-1 focus:ring-emerald-500/50 outline-none font-black italic transition-all [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                    value={editForm.discountValue}
-                                    onChange={(e) => setEditForm({ ...editForm, discountValue: Number(e.target.value) })}
-                                  />
-                                </div>
-                              </div>
+                               <div className="flex items-center justify-end gap-2 pr-2">
+                                 <span className="text-[10px] text-emerald-600/70 font-black italic select-none">-R$</span>
+                                 <input 
+                                   type="text" 
+                                   inputMode="decimal"
+                                   className="w-24 bg-transparent border-b border-emerald-500/50 text-right text-emerald-400 text-xl focus:ring-0 outline-none font-black italic pr-2"
+                                   value={editForm.discountValue}
+                                   onChange={(e) => setEditForm({ ...editForm, discountValue: e.target.value.replace(/[^0-9.]/g, '') === '' ? 0 : Number(e.target.value.replace(/[^0-9.]/g, '')) })}
+                                 />
+                               </div>
                             ) : (
                               new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(entry.discountValue)
                             )}
                           </td>
-                          <td className="px-4 md:px-5 py-4 text-right text-white font-black italic font-mono text-sm md:text-base">
+                          <td className="px-10 py-8 text-right text-white font-black italic text-xl tracking-tighter">
                             {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(entry.balanceAtTime)}
                           </td>
-                          <td className="px-4 md:px-5 py-4 text-center">
+                          <td className="px-10 py-8 text-center">
                             <div className="flex items-center justify-center">
                               {entry.driveLink ? (
                                 <a 
                                   href={entry.driveLink}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-all text-xs font-black border border-blue-500/20 uppercase tracking-tight shadow-sm"
+                                  className="p-4 bg-emerald-500/10 text-emerald-400 rounded-2xl hover:bg-emerald-500 hover:text-white transition-all shadow-lg"
                                 >
-                                  <HardDrive size={14} />
-                                  Drive
+                                  <FileText size={24} />
                                 </a>
                               ) : entry.pdfBase64 ? (
                                 <button 
-                                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition-all text-xs font-black border border-emerald-500/20 uppercase tracking-tight shadow-sm"
+                                  className="p-4 bg-emerald-500/10 text-emerald-400 rounded-2xl hover:bg-emerald-500 hover:text-white transition-all shadow-lg"
                                   onClick={() => {
                                     const base64Data = entry.pdfBase64!.split(',')[1];
                                     const byteCharacters = atob(base64Data);
@@ -1080,70 +1209,63 @@ export default function App() {
                                       byteNumbers[i] = byteCharacters.charCodeAt(i);
                                     }
                                     const byteArray = new Uint8Array(byteNumbers);
-                                    const file = new Blob([byteArray], { type: 'application/pdf' });
+                                    const file = new Blob([byteArray], { type: 'application/pdf;base64' });
                                     const fileURL = URL.createObjectURL(file);
                                     window.open(fileURL, '_blank');
                                   }}
                                 >
-                                  <FileText size={14} />
-                                  PDF
+                                  <FileText size={24} />
                                 </button>
                               ) : (
-                                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest opacity-40">N/A</span>
+                                <span className="text-[12px] text-slate-700 font-black italic opacity-40 uppercase tracking-widest">N/A</span>
                               )}
                             </div>
                           </td>
-                          <td className="px-4 md:px-5 py-4 text-center">
-                            <div className="flex items-center justify-center gap-2">
+                          <td className="px-10 py-8 text-center">
+                            <div className="flex items-center justify-center gap-4">
                               {editingId === entry.id ? (
-                                 <div className="flex items-center gap-1.5 animate-in fade-in zoom-in duration-200">
+                                 <div className="flex items-center gap-3">
                                  <button 
                                    onClick={() => handleUpdateEntry(entry.id)}
-                                   className="bg-emerald-500 text-white p-1.5 rounded-lg hover:bg-emerald-600 transition-all shadow-lg active:scale-95"
-                                   title="Salvar"
+                                   className="p-3 bg-emerald-500 text-white rounded-2xl hover:bg-emerald-400 transition-all shadow-lg"
                                  >
-                                   <Check size={14} />
+                                   <Check size={20} />
                                  </button>
                                  <button 
                                    onClick={() => setEditingId(null)}
-                                   className="bg-slate-700 text-slate-200 p-1.5 rounded-lg hover:bg-slate-600 transition-all active:scale-95"
-                                   title="Cancelar"
+                                   className="p-3 bg-slate-800 text-slate-400 rounded-2xl hover:bg-slate-700 hover:text-white transition-all"
                                  >
-                                   <X size={14} />
+                                   <X size={20} />
                                  </button>
                                </div>
                               ) : deletingId === entry.id ? (
-                                <div className="flex items-center gap-1.5 animate-in fade-in zoom-in duration-200">
+                                <div className="flex items-center gap-3 animate-in fade-in zoom-in duration-300">
                                   <button 
                                     onClick={() => handleDeleteEntry(entry.id)}
-                                    className="bg-rose-500 text-white p-1.5 rounded-lg hover:bg-rose-600 transition-all shadow-lg active:scale-95"
-                                    title="Confirmar exclusão"
+                                    className="p-3 bg-rose-500 text-white rounded-2xl hover:bg-rose-400 transition-all shadow-lg shadow-rose-500/20"
                                   >
-                                    <Check size={14} />
+                                    <Trash2 size={20} />
                                   </button>
                                   <button 
                                     onClick={() => setDeletingId(null)}
-                                    className="bg-slate-700 text-slate-200 p-1.5 rounded-lg hover:bg-slate-600 transition-all active:scale-95"
-                                    title="Cancelar"
+                                    className="p-3 bg-slate-800 text-slate-400 rounded-2xl hover:bg-slate-700 hover:text-white transition-all border border-slate-700"
                                   >
-                                    <X size={14} />
+                                    <X size={20} />
                                   </button>
                                 </div>
                               ) : (
-                                <div className="flex items-center gap-1">
+                                <div className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-all">
                                   <button 
                                     onClick={() => startEditing(entry)}
-                                    className="text-slate-400 hover:text-white hover:bg-slate-800 transition-all p-1.5 rounded-lg"
-                                    title="Editar"
+                                    className="p-3 text-slate-500 hover:text-emerald-400 transition-all"
                                   >
-                                    <Pencil size={18} />
+                                    <Pencil size={20} />
                                   </button>
                                   <button 
                                     onClick={() => setDeletingId(entry.id)}
-                                    className="text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 transition-all p-1.5 rounded-lg"
-                                    title="Excluir"
+                                    className="p-3 text-slate-500 hover:text-rose-500 transition-all"
                                   >
-                                    <Trash2 size={18} />
+                                    <Trash2 size={20} />
                                   </button>
                                 </div>
                               )}
@@ -1153,10 +1275,10 @@ export default function App() {
                       ));
                     })() : (
                       <tr>
-                        <td colSpan={6} className="px-6 py-20 text-center text-slate-600">
-                          <div className="flex flex-col items-center gap-4">
-                            <History size={48} className="opacity-10" />
-                            <p className="text-sm font-black uppercase italic tracking-[0.2em] opacity-40">Aguardando Lançamentos</p>
+                        <td colSpan={6} className="px-8 py-40 text-center">
+                          <div className="flex flex-col items-center justify-center text-slate-800 gap-6 opacity-30 group">
+                            <Activity size={100} className="group-hover:scale-110 transition-transform duration-700" />
+                            <p className="text-[10px] font-black uppercase tracking-[0.8em] italic">Aguardando Lançamentos Estratégicos</p>
                           </div>
                         </td>
                       </tr>
@@ -1169,12 +1291,16 @@ export default function App() {
               <div className="lg:hidden p-4 space-y-4">
                 {entries.length > 0 ? (() => {
                   let runningBalance = investmentValue;
+                  // 1. Calculate Balance with ORIGINAL ASC ORDER
                   const rowsWithBalance = entries.map(entry => {
                     runningBalance = Math.max(0, runningBalance - entry.discountValue);
                     return { ...entry, balanceAtTime: runningBalance };
                   });
                   
-                  return rowsWithBalance.reverse().map((entry) => (
+                  // 2. Apply Visual Order
+                  const finalDisplay = sortOrder === 'desc' ? [...rowsWithBalance].reverse() : rowsWithBalance;
+                  
+                  return finalDisplay.map((entry) => (
                     <div key={entry.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 relative overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-300">
                       <div className="flex justify-between items-start mb-4">
                         <div className="flex items-center gap-2">
@@ -1222,10 +1348,11 @@ export default function App() {
                           <div className="text-slate-200 font-mono text-sm">
                              {editingId === entry.id ? (
                                <input 
-                                 type="number" 
-                                 className="w-full bg-slate-950 border border-slate-700 rounded p-1 text-xs outline-none focus:ring-1 focus:ring-emerald-500"
+                                 type="text" 
+                                 inputMode="decimal"
+                                 className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2 text-right outline-none focus:ring-1 focus:ring-emerald-500/50 pr-4 italic font-black"
                                  value={editForm.totalBill}
-                                 onChange={(e) => setEditForm({ ...editForm, totalBill: Number(e.target.value) })}
+                                 onChange={(e) => setEditForm({ ...editForm, totalBill: e.target.value.replace(/[^0-9.]/g, '') === '' ? 0 : Number(e.target.value.replace(/[^0-9.]/g, '')) })}
                                />
                              ) : (
                                entry.totalBill ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(entry.totalBill) : '—'
@@ -1235,14 +1362,14 @@ export default function App() {
                         <div className="space-y-1.5">
                           <div className="flex items-center justify-between">
                             <p className="text-[9px] text-emerald-500 font-bold uppercase tracking-wider">Desconto</p>
-                            <div className="flex items-center gap-1.5">
+                            <div className="flex items-center gap-2">
                                {entry.driveLink ? (
-                                 <a href={entry.driveLink} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-md bg-blue-500/10 text-blue-400 border border-blue-500/20 shadow-sm" title="Google Drive">
-                                   <HardDrive size={12} />
+                                 <a href={entry.driveLink} target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-lg bg-blue-500/15 text-blue-400 border border-blue-500/30 shadow-lg" title="Google Drive">
+                                   <HardDrive size={18} />
                                  </a>
                                ) : entry.pdfBase64 ? (
                                  <button 
-                                   className="p-1.5 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shadow-sm"
+                                   className="p-2.5 rounded-lg bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-lg"
                                    title="Visualizar PDF"
                                    onClick={() => {
                                       const base64Data = entry.pdfBase64!.split(',')[1];
@@ -1257,7 +1384,7 @@ export default function App() {
                                       window.open(fileURL, '_blank');
                                    }}
                                  >
-                                   <FileText size={12} />
+                                   <FileText size={18} />
                                  </button>
                                ) : null}
                             </div>
@@ -1265,10 +1392,11 @@ export default function App() {
                           <div className="text-emerald-400 font-mono font-bold text-sm">
                              {editingId === entry.id ? (
                                <input 
-                                 type="number" 
-                                 className="w-full bg-slate-950 border border-emerald-500/20 rounded p-1 text-xs outline-none focus:ring-1 focus:ring-emerald-500 text-emerald-400"
+                                 type="text" 
+                                 inputMode="decimal"
+                                 className="w-full bg-slate-950 border border-emerald-500/20 rounded-lg p-2 text-right outline-none focus:ring-1 focus:ring-emerald-500/50 text-emerald-400 pr-4 italic font-black"
                                  value={editForm.discountValue}
-                                 onChange={(e) => setEditForm({ ...editForm, discountValue: Number(e.target.value) })}
+                                 onChange={(e) => setEditForm({ ...editForm, discountValue: e.target.value.replace(/[^0-9.]/g, '') === '' ? 0 : Number(e.target.value.replace(/[^0-9.]/g, '')) })}
                                />
                              ) : (
                                new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(entry.discountValue)
@@ -1300,39 +1428,154 @@ export default function App() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="max-w-6xl mx-auto px-4 text-center text-slate-400 text-sm">
-        <p>© {new Date().getFullYear()} Sistema de Controle Solar</p>
-      </footer>
+      {/* Manual Add Modal */}
+      {isManualAddOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 sm:p-10 pointer-events-none">
+          <div className="absolute inset-0 bg-[#05080c]/90 backdrop-blur-3xl animate-in fade-in duration-500 pointer-events-auto" onClick={() => setIsManualAddOpen(false)} />
+          <div className="relative w-full max-w-lg animate-in fade-in zoom-in slide-in-from-bottom-8 duration-500 pointer-events-auto">
+            <Card className="bg-slate-900 border-slate-800 p-10 shadow-[0_0_100px_rgba(0,0,0,0.8)]">
+              <div className="flex items-center justify-between mb-10">
+                <div className="flex items-center gap-5">
+                  <div className="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-400 border border-emerald-500/20">
+                    <Plus size={28} />
+                  </div>
+                  <div>
+                    <h3 className="text-3xl font-black text-white italic uppercase tracking-tighter leading-none">Lançamento</h3>
+                    <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.4em] mt-1 italic">Entrada de dados manuais</p>
+                  </div>
+                </div>
+                <button onClick={() => setIsManualAddOpen(false)} className="p-3 text-slate-500 hover:text-white transition-colors bg-slate-950 rounded-xl hover:bg-slate-800 border border-slate-800">
+                  <X size={24} />
+                </button>
+              </div>
 
-      {/* Simple Settings Modal */}
+              <div className="space-y-8">
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-3">
+                    <label className="text-[10px] text-slate-500 font-black uppercase tracking-widest italic ml-1">Mês de Competência</label>
+                    <select 
+                      className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-6 py-4 text-white font-black italic focus:ring-2 focus:ring-emerald-500/30 outline-none transition-all appearance-none cursor-pointer"
+                      value={manualForm.month}
+                      onChange={(e) => setManualForm({ ...manualForm, month: Number(e.target.value) })}
+                    >
+                      {Array.from({ length: 12 }, (_, i) => (
+                        <option key={i + 1} value={i + 1}>{new Date(0, i).toLocaleString('pt-BR', { month: 'long' }).toUpperCase()}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-3">
+                    <label className="text-[10px] text-slate-500 font-black uppercase tracking-widest italic ml-1">Ano Civil</label>
+                    <select 
+                      className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-6 py-4 text-white font-black italic focus:ring-2 focus:ring-emerald-500/30 outline-none transition-all appearance-none cursor-pointer"
+                      value={manualForm.year}
+                      onChange={(e) => setManualForm({ ...manualForm, year: Number(e.target.value) })}
+                    >
+                      {Array.from({ length: 5 }, (_, i) => (
+                        <option key={i} value={new Date().getFullYear() - i}>{new Date().getFullYear() - i}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-[10px] text-slate-500 font-black uppercase tracking-widest italic ml-1">Valor Total da Fatura (Bruto)</label>
+                  <div className="relative">
+                    <span className="absolute left-6 top-1/2 -translate-y-1/2 text-emerald-500 font-black italic text-lg opacity-50">R$</span>
+                    <input 
+                      type="number" 
+                      placeholder="0,00"
+                      className="w-full bg-slate-950 border border-slate-800 rounded-2xl pl-16 pr-6 py-5 text-white font-black italic text-xl focus:ring-2 focus:ring-emerald-500/30 outline-none transition-all placeholder:text-slate-800"
+                      value={manualForm.totalBill}
+                      onChange={(e) => setManualForm({ ...manualForm, totalBill: e.target.value })}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-[10px] text-slate-500 font-black uppercase tracking-widest italic ml-1">Valor do Crédito Injetado (Desconto)</label>
+                  <div className="relative">
+                    <span className="absolute left-6 top-1/2 -translate-y-1/2 text-emerald-500 font-black italic text-lg">R$</span>
+                    <input 
+                      type="number" 
+                      placeholder="0,00"
+                      className="w-full bg-slate-950 border border-emerald-500/10 rounded-2xl pl-16 pr-6 py-5 text-emerald-400 font-black italic text-xl focus:ring-2 focus:ring-emerald-500/30 outline-none transition-all placeholder:text-slate-800 shadow-[0_0_30px_rgba(16,185,129,0.05)]"
+                      value={manualForm.discountValue}
+                      onChange={(e) => setManualForm({ ...manualForm, discountValue: e.target.value })}
+                    />
+                  </div>
+                  <p className="text-[9px] text-emerald-600 font-black uppercase tracking-widest ml-1 animate-pulse italic">Este valor será deduzido do saldo devedor</p>
+                </div>
+
+                <Button 
+                  className="w-full py-6 mt-6 rounded-[2rem] text-lg lg:text-xl shadow-[0_20px_40px_rgba(16,185,129,0.2)]"
+                  onClick={handleManualAdd}
+                >
+                  <Plus size={24} className="mr-3" />
+                  Efetivar Lançamento
+                </Button>
+              </div>
+            </Card>
+          </div>
+        </div>
+      )}
+
+      {/* Settings Modal */}
       {isSettingsOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <Card className="max-w-md w-full p-8 animate-in fade-in zoom-in duration-300 border-slate-700 bg-slate-900 shadow-2xl">
-            <h3 className="text-xl font-bold mb-4 text-white uppercase italic tracking-tight">Configurar Investimento</h3>
-            <p className="text-sm text-slate-300 mb-8 leading-relaxed">
-              Informe o valor bruto total investido no seu sistema fotovoltaico para que possamos calcular o tempo estimado de retorno.
-            </p>
-            <div className="flex flex-col gap-6">
-              <div>
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 block">Valor do Projeto (BRL)</label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold italic">R$</span>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 sm:p-10 pointer-events-none">
+          <div className="absolute inset-0 bg-[#05080c]/90 backdrop-blur-3xl animate-in fade-in duration-500 pointer-events-auto" onClick={() => setIsSettingsOpen(false)} />
+          <div className="relative w-full max-w-lg animate-in fade-in zoom-in slide-in-from-bottom-8 duration-500 pointer-events-auto">
+            <Card className="bg-slate-900 border-slate-800 p-10 shadow-[0_0_100px_rgba(0,0,0,0.8)]">
+              <div className="flex items-center justify-between mb-10">
+                <div className="flex items-center gap-5">
+                  <div className="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-400 border border-emerald-500/20">
+                    <Activity size={28} />
+                  </div>
+                  <div>
+                    <h3 className="text-3xl font-black text-white italic uppercase tracking-tighter leading-none">Diretrizes</h3>
+                    <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.4em] mt-1 italic">Configuração do Ativo Solar</p>
+                  </div>
+                </div>
+                <button onClick={() => setIsSettingsOpen(false)} className="p-3 text-slate-500 hover:text-white transition-colors bg-slate-950 rounded-xl hover:bg-slate-800 border border-slate-800">
+                  <X size={24} />
+                </button>
+              </div>
+
+              <div className="space-y-8">
+                <div className="space-y-3">
+                  <label className="text-[10px] text-slate-500 font-black uppercase tracking-widest italic ml-1">Capex do Projeto (Investimento Total)</label>
+                  <div className="relative">
+                    <span className="absolute left-6 top-1/2 -translate-y-1/2 text-emerald-500 font-black italic text-lg">R$</span>
+                    <input 
+                      type="number" 
+                      className="w-full bg-slate-950 border border-slate-800 rounded-2xl pl-16 pr-6 py-5 text-white font-black italic text-xl focus:ring-2 focus:ring-emerald-500/30 outline-none transition-all"
+                      value={newInvestment}
+                      onChange={(e) => setNewInvestment(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-[10px] text-slate-500 font-black uppercase tracking-widest italic ml-1">Data de Implementação / Início</label>
                   <input 
-                    type="number" 
-                    value={newInvestment}
-                    onChange={(e) => setNewInvestment(e.target.value)}
-                    className="w-full pl-12 pr-4 py-4 bg-slate-950 border border-slate-800 rounded-xl text-white font-black italic focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
-                    placeholder="Ex: 14000"
+                    type="date" 
+                    className="w-full bg-slate-950 border border-slate-800 rounded-2xl px-6 py-5 text-white font-black italic text-xl focus:ring-2 focus:ring-emerald-500/30 outline-none transition-all appearance-none"
+                    value={newInstallationDate}
+                    onChange={(e) => setNewInstallationDate(e.target.value)}
                   />
                 </div>
+
+                <div className="pt-6">
+                  <Button 
+                    className="w-full py-6 rounded-[2rem] text-lg lg:text-xl shadow-[0_20px_40px_rgba(16,185,129,0.2)]"
+                    onClick={handleUpdateSettings}
+                  >
+                    <Check size={24} className="mr-3" />
+                    Consolidar Ativos
+                  </Button>
+                </div>
               </div>
-              <div className="flex gap-3 justify-end mt-4">
-                <Button variant="outline" onClick={() => setIsSettingsOpen(false)} className="border-slate-800 text-slate-400 hover:bg-slate-800 hover:text-white">Cancelar</Button>
-                <Button onClick={handleUpdateSettings} className="bg-emerald-600 hover:bg-emerald-700 px-8">Salvar Alterações</Button>
-              </div>
-            </div>
-          </Card>
+            </Card>
+          </div>
         </div>
       )}
     </div>
