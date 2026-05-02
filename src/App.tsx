@@ -282,13 +282,13 @@ export default function App() {
   const aiRef = useRef<any>(null);
   if (!aiRef.current) {
     // No Vite/Vercel (Client-side), variáveis PRECISAM começar com VITE_ para serem expostas
-    const apiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || 
+    const rawKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || 
                    (typeof process !== 'undefined' ? process.env?.GEMINI_API_KEY : '');
     
+    const apiKey = rawKey?.trim(); // Remove espaços ou quebras de linha acidentais
+
     if (!apiKey) {
       console.warn("⚠️ ALERTA: Nenhuma chave Gemini API detectada. Configure VITE_GEMINI_API_KEY no painel do Vercel.");
-    } else if (apiKey.includes("Free_Tier")) {
-      console.error("❌ ERRO: Você colou o texto 'AI_Studio_Free_Tier' em vez da chave real no Vercel!");
     }
     
     aiRef.current = new GoogleGenAI({ apiKey: apiKey || "" });
@@ -377,8 +377,9 @@ export default function App() {
   }, [user]);
 
   useEffect(() => {
-    if (!user) {
-      setIsDriveConnected(false);
+    // No Vercel (Pure SPA), não temos as rotas /api Express, então pulamos o check de Drive
+    if (!user || window.location.hostname.includes('vercel.app')) {
+      if (!user) setIsDriveConnected(false);
       return;
     }
 
@@ -523,7 +524,7 @@ export default function App() {
 
       console.log("Chamando Gemini no frontend...");
       const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
+        model: "gemini-1.5-flash",
         contents: [
           {
             parts: [
