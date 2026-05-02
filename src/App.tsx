@@ -281,14 +281,16 @@ export default function App() {
   // Initialize Gemini AI
   const aiRef = useRef<any>(null);
   if (!aiRef.current) {
-    // Tenta pegar de várias fontes para garantir funcionamento no AI Studio e no Vercel
-    // No Vercel/Vite, variáveis precisam começar com VITE_ para serem expostas ao browser
+    // No Vite/Vercel (Client-side), variáveis PRECISAM começar com VITE_ para serem expostas
     const apiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || 
                    (typeof process !== 'undefined' ? process.env?.GEMINI_API_KEY : '');
     
     if (!apiKey) {
-      console.warn("Gemini API Key não detectada nas variáveis de ambiente.");
+      console.warn("⚠️ ALERTA: Nenhuma chave Gemini API detectada. Configure VITE_GEMINI_API_KEY no painel do Vercel.");
+    } else if (apiKey.includes("Free_Tier")) {
+      console.error("❌ ERRO: Você colou o texto 'AI_Studio_Free_Tier' em vez da chave real no Vercel!");
     }
+    
     aiRef.current = new GoogleGenAI({ apiKey: apiKey || "" });
   }
 
