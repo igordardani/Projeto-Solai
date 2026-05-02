@@ -289,17 +289,17 @@ export default function App() {
   if (!aiRef.current) {
     // No Vite/Vercel (Client-side), variáveis PRECISAM começar com VITE_ para serem expostas
     const rawKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || '';
-    const apiKey = rawKey ? String(rawKey).replace(/['"]+/g, '').trim() : "";
+    
+    // Limpeza RADICAL: remove aspas, espaços, quebras de linha e qualquer caractere não-ASCII/invisível
+    const apiKey = rawKey ? String(rawKey).replace(/['"]+/g, '').replace(/[^\x21-\x7E]/g, '').trim() : "";
 
-    if (apiKey) {
+    if (apiKey && !aiRef.current) {
       const masked = `${apiKey.substring(0, 6)}...${apiKey.substring(apiKey.length - 4)}`;
-      // Armazena no ref apenas para a IA
       aiRef.current = new GoogleGenerativeAI(apiKey);
       
-      // Atualiza o status apenas uma vez
       if (!apiKeyStatus.detected) {
         setApiKeyStatus({ detected: true, length: apiKey.length, masked });
-        console.log(`🔑 Gemini Key Detectada no Client: ${masked}`);
+        console.log(`🔑 Gemini Key Detectada no Client: ${masked} (Total Chars: ${apiKey.length})`);
       }
     }
   }
@@ -387,8 +387,12 @@ export default function App() {
   }, [user]);
 
   useEffect(() => {
-    // No Vercel (Pure SPA), não temos as rotas /api Express, então pulamos o check de Drive
-    if (!user || window.location.hostname.includes('vercel.app')) {
+    // No Vercel (Pure SPA) ou ambientes externos, não temos as rotas /api Express, então pulamos o check de Drive
+    const isExternal = window.location.hostname.includes('vercel.app') || 
+                       window.location.hostname.includes('ngrok') || 
+                       window.location.hostname.includes('webcontainer');
+
+    if (!user || isExternal) {
       if (!user) setIsDriveConnected(false);
       return;
     }
