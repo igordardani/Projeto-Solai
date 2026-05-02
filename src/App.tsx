@@ -60,7 +60,7 @@ import {
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { auth, db, handleFirestoreError, OperationType } from "./lib/firebase";
 import { UserEntry, UserSettings } from "./types";
 import { cn } from "./lib/utils";
@@ -285,13 +285,18 @@ export default function App() {
     const rawKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || 
                    (typeof process !== 'undefined' ? process.env?.GEMINI_API_KEY : '');
     
-    const apiKey = rawKey?.trim(); // Remove espaços ou quebras de linha acidentais
+    // Converte para string e limpa espaços/quebras de linha
+    const apiKey = rawKey ? String(rawKey).trim() : "";
 
     if (!apiKey) {
-      console.warn("⚠️ ALERTA: Nenhuma chave Gemini API detectada. Configure VITE_GEMINI_API_KEY no painel do Vercel.");
+      console.warn("⚠️ ALERTA: Nenhuma chave Gemini API detectada no Vercel. Configure VITE_GEMINI_API_KEY.");
+    } else {
+      // Log mascarado para conferência
+      const masked = `${apiKey.substring(0, 6)}...${apiKey.substring(apiKey.length - 4)}`;
+      console.log(`🔑 Gemini Key Detectada: ${masked}`);
     }
     
-    aiRef.current = new GoogleGenAI({ apiKey: apiKey || "" });
+    aiRef.current = new GoogleGenerativeAI(apiKey);
   }
 
   useEffect(() => {
@@ -523,24 +528,20 @@ export default function App() {
       `;
 
       console.log("Chamando Gemini no frontend...");
-      const response = await ai.models.generateContent({
-        model: "gemini-1.5-flash",
-        contents: [
-          {
-            parts: [
-              { text: prompt },
-              {
-                inlineData: {
-                  mimeType: "application/pdf",
-                  data: base64Data
-                }
-              }
-            ]
-          }
-        ]
-      });
+      const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-      const responseText = response.text;
+      const result = await model.generateContent([
+        { text: prompt },
+        {
+          inlineData: {
+            mimeType: "application/pdf",
+            data: base64Data
+          }
+        }
+      ]);
+
+      const response = await result.response;
+      const responseText = response.text();
       console.log("Gemini Response:", responseText);
 
       // Clean response if AI adds markdown blocks
