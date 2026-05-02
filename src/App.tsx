@@ -283,17 +283,17 @@ export default function App() {
   if (!aiRef.current) {
     // No Vite/Vercel (Client-side), variáveis PRECISAM começar com VITE_ para serem expostas
     const rawKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || 
-                   (typeof process !== 'undefined' ? process.env?.GEMINI_API_KEY : '');
+                   (typeof process !== 'undefined' ? (process.env?.GEMINI_API_KEY || (process.env as any)?.VITE_GEMINI_API_KEY) : '');
     
-    // Converte para string e limpa espaços/quebras de linha
-    const apiKey = rawKey ? String(rawKey).trim() : "";
+    // Converte para string e limpa espaços, quebras de linha e ASPAS (comum erro no Vercel)
+    const apiKey = rawKey ? String(rawKey).replace(/['"]+/g, '').trim() : "";
 
     if (!apiKey) {
-      console.warn("⚠️ ALERTA: Nenhuma chave Gemini API detectada no Vercel. Configure VITE_GEMINI_API_KEY.");
+      console.warn("⚠️ ALERTA: Nenhuma chave Gemini API detectada no Vercel. Configure VITE_GEMINI_API_KEY no painel de Environment Variables.");
     } else {
       // Log mascarado para conferência
       const masked = `${apiKey.substring(0, 6)}...${apiKey.substring(apiKey.length - 4)}`;
-      console.log(`🔑 Gemini Key Detectada: ${masked}`);
+      console.log(`🔑 Gemini Key Detectada: ${masked} (Tamanho: ${apiKey.length})`);
     }
     
     aiRef.current = new GoogleGenerativeAI(apiKey);
