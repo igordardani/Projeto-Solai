@@ -280,23 +280,28 @@ export default function App() {
 
   // Initialize Gemini AI
   const aiRef = useRef<any>(null);
+  const [apiKeyStatus, setApiKeyStatus] = useState<{ detected: boolean, length: number, masked: string }>({ 
+    detected: false, 
+    length: 0, 
+    masked: '' 
+  });
+
   if (!aiRef.current) {
     // No Vite/Vercel (Client-side), variáveis PRECISAM começar com VITE_ para serem expostas
-    const rawKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || 
-                   (typeof process !== 'undefined' ? (process.env?.GEMINI_API_KEY || (process.env as any)?.VITE_GEMINI_API_KEY) : '');
-    
-    // Converte para string e limpa espaços, quebras de linha e ASPAS (comum erro no Vercel)
+    const rawKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || '';
     const apiKey = rawKey ? String(rawKey).replace(/['"]+/g, '').trim() : "";
 
-    if (!apiKey) {
-      console.warn("⚠️ ALERTA: Nenhuma chave Gemini API detectada no Vercel. Configure VITE_GEMINI_API_KEY no painel de Environment Variables.");
-    } else {
-      // Log mascarado para conferência
+    if (apiKey) {
       const masked = `${apiKey.substring(0, 6)}...${apiKey.substring(apiKey.length - 4)}`;
-      console.log(`🔑 Gemini Key Detectada: ${masked} (Tamanho: ${apiKey.length})`);
+      // Armazena no ref apenas para a IA
+      aiRef.current = new GoogleGenerativeAI(apiKey);
+      
+      // Atualiza o status apenas uma vez
+      if (!apiKeyStatus.detected) {
+        setApiKeyStatus({ detected: true, length: apiKey.length, masked });
+        console.log(`🔑 Gemini Key Detectada no Client: ${masked}`);
+      }
     }
-    
-    aiRef.current = new GoogleGenerativeAI(apiKey);
   }
 
   useEffect(() => {
@@ -751,12 +756,19 @@ export default function App() {
               <Sun className="text-white w-6 h-6 sm:w-8 sm:h-8" />
             </div>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-black italic tracking-tighter leading-none">
+              <h1 className="text-2xl sm:text-3xl font-black italic tracking-tighter leading-none flex items-center gap-2">
                 SOL<span className="text-emerald-500">AI</span>
+                {apiKeyStatus.detected ? (
+                  <span className="text-[8px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-black uppercase tracking-widest border border-emerald-500/20">AI Active</span>
+                ) : (
+                  <span className="text-[8px] bg-rose-500/20 text-rose-400 px-2 py-0.5 rounded-full font-black uppercase tracking-widest border border-rose-500/20 animate-pulse">AI Inactive</span>
+                )}
               </h1>
               <div className="flex items-center gap-3 mt-1 sm:mt-2">
                 <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                <p className="text-[8px] sm:text-[10px] text-slate-500 font-black uppercase tracking-[0.3em] sm:tracking-[0.4em] italic leading-none truncate max-w-[150px] sm:max-w-none">Yield Dashboard • {user.displayName}</p>
+                <p className="text-[8px] sm:text-[10px] text-slate-500 font-black uppercase tracking-[0.3em] sm:tracking-[0.4em] italic leading-none truncate max-w-[150px] sm:max-w-none">
+                  Yield Dashboard • {user.displayName || user.email} {apiKeyStatus.detected && <span className="opacity-40 ml-1">({apiKeyStatus.masked})</span>}
+                </p>
               </div>
             </div>
           </div>
