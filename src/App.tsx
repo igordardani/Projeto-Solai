@@ -132,7 +132,7 @@ const StatCard = ({ title, value, icon: Icon, trend, trendColor, variant = 'whit
       {trend && (
         <span 
           className={cn(
-            "text-[8px] sm:text-[9px] font-black px-2.5 py-1 rounded-xl cursor-not-allowed transition-all uppercase tracking-widest italic",
+            "text-[10px] sm:text-[11px] font-black px-3 py-1.5 rounded-xl cursor-not-allowed transition-all uppercase tracking-widest italic leading-none shadow-sm",
             trendColor || (variant === 'emerald' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" : "bg-slate-800 text-slate-400 border border-slate-700")
           )}
         >
@@ -1082,7 +1082,7 @@ export default function App() {
               } 
               icon={TrendingUp}
               trend={remainingValue > 0 ? "Em Curso" : "Concluído"}
-              trendColor={remainingValue > 0 ? "bg-amber-500/10 text-amber-500 border border-amber-500/20" : "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"}
+              trendColor={remainingValue > 0 ? "bg-yellow-500/10 text-yellow-500 border border-yellow-500/20" : "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"}
             />
 
             <StatCard 
@@ -1090,7 +1090,7 @@ export default function App() {
               value={formatMonths(entries.length)} 
               icon={Calendar}
               trend={remainingValue === 0 ? "Pago!" : "Em progresso"}
-              trendColor={remainingValue === 0 ? "bg-emerald-500/10 text-emerald-400" : "bg-slate-800 text-slate-500"}
+              trendColor={remainingValue === 0 ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-yellow-500/10 text-yellow-500 border border-yellow-500/20"}
             />
           </div>
 
