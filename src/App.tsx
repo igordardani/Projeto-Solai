@@ -65,6 +65,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { auth, db, handleFirestoreError, OperationType } from "./lib/firebase";
 import { UserEntry, UserSettings } from "./types";
 import { cn } from "./lib/utils";
+import { motion, AnimatePresence } from "motion/react";
 
 const formatMonths = (totalMonths: number) => {
   if (isNaN(totalMonths)) return "N/A";
@@ -75,6 +76,43 @@ const formatMonths = (totalMonths: number) => {
   if (months > 0 || (years === 0 && totalMonths > 0)) parts.push(`${months} ${months === 1 ? 'Mês' : 'Meses'}`);
   if (totalMonths === 0) return "0 Meses";
   return parts.join(' e ');
+};
+
+const Toast = ({ message, type, onClose }: { message: string, type: 'success' | 'error', onClose: () => void }) => {
+  useEffect(() => {
+    const timer = setTimeout(onClose, type === 'success' ? 5000 : 8000);
+    return () => clearTimeout(timer);
+  }, [type, onClose]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -20, scale: 0.9 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -20, scale: 0.9 }}
+      className={cn(
+        "fixed top-6 left-1/2 -translate-x-1/2 z-[100] px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-4 min-w-[320px] backdrop-blur-xl border",
+        type === 'success' 
+          ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" 
+          : "bg-rose-500/10 border-rose-500/20 text-rose-400"
+      )}
+    >
+      <div className={cn(
+        "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
+        type === 'success' ? "bg-emerald-500 text-white" : "bg-rose-500 text-white"
+      )}>
+        {type === 'success' ? <CheckCircle2 size={24} /> : <AlertCircle size={24} />}
+      </div>
+      <div className="flex-1">
+        <p className="text-[10px] font-black uppercase tracking-widest italic opacity-60 mb-0.5">
+          {type === 'success' ? 'Sucesso' : 'Erro de Processamento'}
+        </p>
+        <p className="text-sm font-bold leading-tight">{message}</p>
+      </div>
+      <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
+        <X size={16} />
+      </button>
+    </motion.div>
+  );
 };
 
 // --- Components ---
@@ -412,8 +450,13 @@ export default function App() {
       .replace(/\s*\(400\)\s*$/, "")
       .trim();
 
+    // Tratamento de Cota/Velocidade (429)
+    if (cleanMsg.toLowerCase().includes("429") || cleanMsg.toLowerCase().includes("quota")) {
+      return "O limite de processamento temporário foi atingido. Aguarde cerca de 15 segundos e tente novamente.";
+    }
+
     // Se for um erro específico de validação (negócio), retorna ele mesmo já limpo
-    if (cleanMsg.includes("Atenção:") || cleanMsg.includes("Já existe") || cleanMsg.includes("período")) {
+    if (cleanMsg.includes("Atenção:") || cleanMsg.includes("Já existe") || cleanMsg.includes("período") || cleanMsg.includes("conta de energia")) {
       return cleanMsg;
     }
 
@@ -673,7 +716,12 @@ export default function App() {
       
       const prompt = `
         Você é um especialista em faturas de energia solar da Energisa Brasil.
-        Analise esta fatura e extraia os seguintes dados estruturados em JSON:
+        
+        Primeiro, verifique se este documento é genuinamente uma fatura/conta de energia elétrica.
+        Se NÃO for uma conta de energia, retorne EXATAMENTE este JSON:
+        { "error": "Esse arquivo não é uma conta de energia." }
+
+        Se for uma conta de energia, analise-a e extraia os seguintes dados estruturados em JSON:
         
         {
           "month": número do mês de referência (1-12),
@@ -708,6 +756,12 @@ export default function App() {
       // Clean response if AI adds markdown blocks
       const cleanJson = responseText.replace(/```json|```/g, "").trim();
       const extractedData = JSON.parse(cleanJson);
+
+      // --- VALIDATION CHECK ---
+      if (extractedData.error) {
+        throw new Error(extractedData.error);
+      }
+      // -----------------------
 
       // --- DUPLICATE CHECK ---
       const alreadyExists = entries.some(e => 
@@ -907,6 +961,23 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#05080c] text-slate-300 font-sans selection:bg-emerald-500/30 overflow-x-hidden">
+      <AnimatePresence>
+        {successMessage && (
+          <Toast 
+            message={successMessage} 
+            type="success" 
+            onClose={() => setSuccessMessage(null)} 
+          />
+        )}
+        {uploadError && (
+          <Toast 
+            message={uploadError} 
+            type="error" 
+            onClose={() => setUploadError(null)} 
+          />
+        )}
+      </AnimatePresence>
+
       {/* Header */}
       <header className="sticky top-0 z-50 bg-[#05080c]/90 backdrop-blur-3xl border-b border-slate-900 shadow-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-8 py-4 flex flex-col justify-between items-center lg:flex-row gap-6">
@@ -1055,18 +1126,6 @@ export default function App() {
                   LANÇAMENTO MANUAL
                 </Button>
               </div>
-              
-              {uploadError && (
-                <div className="text-rose-400 text-xs mt-6 font-bold px-4 py-3 bg-rose-500/10 border border-rose-500/20 rounded-xl animate-in fade-in slide-in-from-top-2 text-center">
-                  {uploadError}
-                </div>
-              )}
-
-              {successMessage && (
-                <div className="text-emerald-400 text-xs mt-6 font-bold px-4 py-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl animate-in fade-in slide-in-from-top-2 text-center">
-                  {successMessage}
-                </div>
-              )}
             </div>
           </Card>
 
