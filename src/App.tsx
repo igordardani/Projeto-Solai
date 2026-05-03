@@ -901,7 +901,7 @@ export default function App() {
       {/* Header */}
       <header className="sticky top-0 z-50 bg-[#05080c]/90 backdrop-blur-3xl border-b border-slate-900 shadow-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-8 py-4 flex flex-col justify-between items-center lg:flex-row gap-6">
-          <div className="flex items-center gap-4 sm:gap-6 group cursor-default self-start lg:self-center">
+          <div className="flex items-center gap-4 sm:gap-6 group cursor-default w-full lg:w-auto">
             <div 
               className="w-12 h-12 sm:w-16 sm:h-16 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-emerald-500/40 rotate-12 group-hover:rotate-0 transition-all duration-700"
             >
@@ -913,20 +913,20 @@ export default function App() {
               </h1>
               <div className="flex items-center gap-3 mt-1 sm:mt-2">
                 <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                <p className="text-[8px] sm:text-[10px] text-slate-500 font-black uppercase tracking-[0.3em] sm:tracking-[0.4em] italic leading-none truncate max-w-[150px] sm:max-w-none">
+                <p className="text-[10px] sm:text-xs text-slate-500 font-black uppercase tracking-[0.3em] sm:tracking-[0.4em] italic leading-none">
                   Yield Dashboard • {user.displayName || user.email}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center lg:justify-end gap-3 w-full lg:w-auto mt-2 lg:mt-0">
+          <div className="flex flex-wrap items-center justify-end gap-3 w-full lg:w-auto mt-2 lg:mt-0">
             {/* Box Volume Investido */}
             <div className="bg-slate-950/60 border border-slate-800/50 px-6 py-3.5 rounded-2xl shadow-xl flex items-center gap-6 group hover:border-emerald-500/30 transition-all">
               <div>
-                <p className="text-[9px] text-slate-500 font-black uppercase tracking-[0.3em] leading-none mb-2 italic">Volume Investido</p>
+                <p className="text-[11px] text-slate-500 font-black uppercase tracking-[0.3em] leading-none mb-2 italic">Volume Investido</p>
                 <p 
-                  className="text-xl font-black italic text-white cursor-pointer hover:text-emerald-500 transition-colors leading-none tracking-tighter"
+                  className="text-xl sm:text-2xl font-black italic text-white cursor-pointer hover:text-emerald-500 transition-colors leading-none tracking-tighter"
                   onClick={openSettings}
                 >
                   {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(investmentValue)}
