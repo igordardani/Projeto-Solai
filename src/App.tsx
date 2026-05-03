@@ -911,8 +911,9 @@ export default function App() {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center lg:justify-end gap-4 w-full lg:w-auto mt-2 lg:mt-0">
-            <div className="bg-slate-900 border border-slate-800 px-6 py-3.5 rounded-2xl shadow-xl flex items-center gap-6 group hover:border-emerald-500/30 transition-all flex-1 sm:flex-none">
+          <div className="flex flex-wrap items-center justify-center lg:justify-end gap-3 w-full lg:w-auto mt-2 lg:mt-0">
+            {/* Box Volume Investido */}
+            <div className="bg-slate-950/60 border border-slate-800/50 px-6 py-3.5 rounded-2xl shadow-xl flex items-center gap-6 group hover:border-emerald-500/30 transition-all">
               <div>
                 <p className="text-[9px] text-slate-500 font-black uppercase tracking-[0.3em] leading-none mb-2 italic">Volume Investido</p>
                 <p 
@@ -924,41 +925,16 @@ export default function App() {
               </div>
               <button 
                 onClick={openSettings}
-                className="p-2.5 rounded-xl bg-slate-950 text-slate-500 hover:text-emerald-400 hover:bg-emerald-500/10 transition-all border border-slate-800 hover:border-emerald-500/20"
+                className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-900 border border-slate-800 text-slate-500 hover:text-emerald-400 hover:bg-emerald-500/10 transition-all group-hover:border-emerald-500/20"
               >
                 <Pencil size={14} />
               </button>
             </div>
-            
-            <div 
-              onClick={isDriveConnected ? handleDisconnectDrive : handleConnectDrive}
-              className={cn(
-                "px-6 py-3.5 rounded-2xl cursor-pointer transition-all border flex items-center gap-5 shadow-xl group flex-1 sm:flex-none",
-                isDriveConnected 
-                  ? "bg-emerald-500 text-white shadow-[0_10px_30px_rgba(16,185,129,0.2)] border-transparent" 
-                  : "bg-slate-900 border-slate-800 text-slate-400 hover:border-blue-500/30 hover:bg-blue-500/5 hover:text-blue-400"
-              )}
-            >
-              <div className={cn(
-                "w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-500",
-                isDriveConnected ? "bg-white/20 text-white shadow-xl" : "bg-slate-950 text-slate-600 group-hover:bg-blue-500 group-hover:text-white"
-              )}>
-                <HardDrive size={16} />
-              </div>
-              <div className="flex flex-col">
-                <span className={cn(
-                  "text-[7px] font-black uppercase tracking-[0.3em] leading-none mb-1 italic",
-                  isDriveConnected ? "text-white/60" : "text-slate-500"
-                )}>Vault</span>
-                <span className="text-[9px] font-black uppercase italic tracking-[0.1em] leading-none">
-                  {isDriveConnected ? "Conectado" : "Link"}
-                </span>
-              </div>
-            </div>
  
+            {/* Botão de Sair */}
             <Button 
               variant="ghost" 
-              className="h-14 w-14 flex items-center justify-center p-0 rounded-2xl border border-slate-800 bg-slate-900 text-slate-500 hover:text-rose-500 hover:bg-rose-500/10 hover:border-rose-500/20 shadow-xl transition-all active:scale-90" 
+              className="h-[68px] w-14 flex items-center justify-center p-0 rounded-2xl border border-slate-800 bg-slate-950/60 text-slate-500 hover:text-rose-500 hover:bg-rose-500/10 hover:border-rose-500/20 shadow-xl transition-all active:scale-90" 
               onClick={handleLogout}
               title="Sair da Sessão"
             >
