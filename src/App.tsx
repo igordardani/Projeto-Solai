@@ -278,11 +278,11 @@ export default function App() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [isDiagnosticOpen, setIsDiagnosticOpen] = useState(false);
+  const [isDiagnosticOpen, setIsDiagnosticOpen] = useState(false);  const [selectedModel, setSelectedModel] = useState("gemini-1.5-flash");
   const [apiKeyStatus, setApiKeyStatus] = useState<{ detected: boolean, length: number, masked: string }>({ 
     detected: false, 
     length: 0, 
-    masked: '' 
+    masked: "" 
   });
 
   // Função para obter a instância da IA com a chave limpa
@@ -325,15 +325,18 @@ export default function App() {
 
     try {
       const ai = new GoogleGenerativeAI(apiKey);
-      const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
+      console.log(`Testando modelo: ${selectedModel}`);
+      const model = ai.getGenerativeModel({ model: selectedModel });
       const result = await model.generateContent("Diga 'OK'");
       const response = await result.response;
-      alert(`✅ SUCESSO! A IA respondeu: "${response.text()}"\nSua configuração está perfeita.`);
+      alert(`✅ SUCESSO! O modelo ${selectedModel} respondeu: "${response.text()}"\nSua configuração está perfeita.`);
     } catch (err: any) {
       console.error("Erro no teste:", err);
       const msg = String(err);
       if (msg.includes("API key not valid")) {
-        alert("❌ ERRO: Chave inválida ou restrita no Google Cloud.\n\nDICA: Crie uma nova chave em aistudio.google.com em vez do Google Cloud Console.");
+        alert("❌ ERRO: Chave inválida ou restrita no Google Cloud.");
+      } else if (msg.includes("404") || msg.includes("not found")) {
+        alert(`❌ ERRO 404: O modelo '${selectedModel}' não foi encontrado para esta chave.\nTente selecionar outro modelo na lista (como gemini-1.5-flash-latest).`);
       } else {
         alert(`❌ FALHA: ${err.message || 'Erro de conexão'}`);
       }
@@ -586,8 +589,8 @@ export default function App() {
         Retorne APENAS o JSON puro.
       `;
 
-      console.log("Chamando Gemini no frontend...");
-      const model = aiInstance.getGenerativeModel({ model: "gemini-1.5-flash" });
+      console.log(`Chamando Gemini (${selectedModel}) no frontend...`);
+      const model = aiInstance.getGenerativeModel({ model: selectedModel });
 
       const result = await model.generateContent([
         { text: prompt },
@@ -1629,6 +1632,20 @@ export default function App() {
                     {apiKeyStatus.detected ? apiKeyStatus.masked : "Nenhuma chave encontrada no ambiente (Vercel)"}
                   </code>
                 </div>
+              </div>
+
+              <div className="space-y-3">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Escolher Modelo</label>
+                <select 
+                  value={selectedModel}
+                  onChange={(e) => setSelectedModel(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white text-sm focus:border-emerald-500 outline-none transition-all"
+                >
+                  <option value="gemini-1.5-flash">gemini-1.5-flash (Padrão)</option>
+                  <option value="gemini-1.5-flash-latest">gemini-1.5-flash-latest</option>
+                  <option value="gemini-1.5-flash-8b">gemini-1.5-flash-8b</option>
+                  <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+                </select>
               </div>
 
               <div className="space-y-3">
