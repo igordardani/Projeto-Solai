@@ -279,13 +279,24 @@ export default function App() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [isDiagnosticOpen, setIsDiagnosticOpen] = useState(false);
-  const [availableModels, setAvailableModels] = useState<string[]>(["gemini-1.5-flash", "gemini-2.0-flash", "gemini-2.0-pro"]);
-  const [selectedModel, setSelectedModel] = useState("gemini-2.0-flash");
+  const [availableModels, setAvailableModels] = useState<string[]>(() => {
+    const saved = localStorage.getItem("SOLAI_AVAILABLE_MODELS");
+    return saved ? JSON.parse(saved) : ["gemini-1.5-flash", "gemini-2.0-flash", "gemini-2.5-flash"];
+  });
+  const [selectedModel, setSelectedModel] = useState(() => {
+    return localStorage.getItem("SOLAI_SELECTED_MODEL") || "gemini-2.5-flash";
+  });
   const [apiKeyStatus, setApiKeyStatus] = useState<{ detected: boolean, length: number, masked: string }>({ 
     detected: false, 
     length: 0, 
     masked: "" 
   });
+
+  // Persistir configurações de modelo
+  useEffect(() => {
+    localStorage.setItem("SOLAI_SELECTED_MODEL", selectedModel);
+    localStorage.setItem("SOLAI_AVAILABLE_MODELS", JSON.stringify(availableModels));
+  }, [selectedModel, availableModels]);
   // Função para obter a instância da IA com a chave limpa
   const getGenerativeAI = () => {
     const tempKey = localStorage.getItem("TEMP_GEMINI_KEY");
