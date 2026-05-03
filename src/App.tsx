@@ -877,35 +877,18 @@ export default function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-8 py-4 flex flex-col justify-between items-center lg:flex-row gap-6">
           <div className="flex items-center gap-4 sm:gap-6 group cursor-default self-start lg:self-center">
             <div 
-              className="w-12 h-12 sm:w-16 sm:h-16 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-emerald-500/40 rotate-12 group-hover:rotate-0 transition-all duration-700 cursor-help"
-              onClick={() => setIsDiagnosticOpen(true)}
-              title="Clique para diagnóstico da AI"
+              className="w-12 h-12 sm:w-16 sm:h-16 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-emerald-500/40 rotate-12 group-hover:rotate-0 transition-all duration-700"
             >
               <Sun className="text-white w-6 h-6 sm:w-8 sm:h-8" />
             </div>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-black italic tracking-tighter leading-none flex items-center gap-2">
+              <h1 className="text-2xl sm:text-3xl font-black italic tracking-tighter leading-none">
                 SOL<span className="text-emerald-500">AI</span>
-                {apiKeyStatus.detected ? (
-                  <button 
-                    onClick={() => setIsDiagnosticOpen(true)}
-                    className="text-[8px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-black uppercase tracking-widest border border-emerald-500/20 hover:bg-emerald-500/40 transition-colors"
-                  >
-                    AI Active
-                  </button>
-                ) : (
-                  <button 
-                    onClick={() => setIsDiagnosticOpen(true)}
-                    className="text-[8px] bg-rose-500/20 text-rose-400 px-2 py-0.5 rounded-full font-black uppercase tracking-widest border border-rose-500/20 animate-pulse hover:bg-rose-500/40 transition-colors"
-                  >
-                    AI Inactive
-                  </button>
-                )}
               </h1>
               <div className="flex items-center gap-3 mt-1 sm:mt-2">
                 <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
                 <p className="text-[8px] sm:text-[10px] text-slate-500 font-black uppercase tracking-[0.3em] sm:tracking-[0.4em] italic leading-none truncate max-w-[150px] sm:max-w-none">
-                  Yield Dashboard • {user.displayName || user.email} {apiKeyStatus.detected && <span className="opacity-40 ml-1 normal-case font-mono bg-slate-800 px-1 rounded">({apiKeyStatus.masked} | {apiKeyStatus.length} chars)</span>}
+                  Yield Dashboard • {user.displayName || user.email}
                 </p>
               </div>
             </div>
