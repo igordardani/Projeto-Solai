@@ -630,24 +630,24 @@ export default function App() {
 
     try {
       // Otimização Inteligente de PDF (Compactação via Corte de Páginas)
-      // Se o PDF for maior que 1.5MB, tentamos extrair apenas a primeira página (onde estão os dados da fatura)
+      // Se o PDF for maior que 750KB, tentamos extrair apenas a primeira página (onde estão os dados da fatura)
       let fileToProcess = file;
       
-      if (file.size > 1.5 * 1024 * 1024 && file.type === "application/pdf") {
+      if (file.size > 750 * 1024 && file.type === "application/pdf") {
         try {
           const arrayBuffer = await file.arrayBuffer();
           const pdfDoc = await PDFDocument.load(arrayBuffer);
           const pageCount = pdfDoc.getPageCount();
           
           if (pageCount > 1) {
-            console.log(`Arquivo de ${(file.size / 1024 / 1024).toFixed(2)}MB detectado. Extraindo primeira página para otimização...`);
+            console.log(`Arquivo de ${(file.size / 1024).toFixed(2)}KB detectado. Extraindo primeira página para otimização...`);
             const newPdfDoc = await PDFDocument.create();
             const [firstPage] = await newPdfDoc.copyPages(pdfDoc, [0]);
             newPdfDoc.addPage(firstPage);
             
             const pdfBytes = await newPdfDoc.save();
             fileToProcess = new File([pdfBytes], `optimized_${file.name}`, { type: "application/pdf" });
-            console.log(`Otimização concluída: ${(fileToProcess.size / 1024 / 1024).toFixed(2)}MB`);
+            console.log(`Otimização concluída: ${(fileToProcess.size / 1024).toFixed(2)}KB`);
           }
         } catch (pdfLimitErr) {
           console.warn("Falha na otimização do PDF, prosseguindo com original:", pdfLimitErr);
@@ -760,11 +760,11 @@ export default function App() {
 
       // Firestore limit is 1MB. Base64 is ~33% larger than binary.
       // 750KB * 1.33 = ~997KB. Very close to the limit.
-      if (file.size < 750000) {
+      if (fileToProcess.size < 750000) {
         newEntry.pdfBase64 = `data:application/pdf;base64,${base64Data}`;
       } else {
-        console.warn("PDF muito grande (>750KB) para o banco de dados. Salvando apenas os dados.");
-        setUploadError("Dados extraídos com sucesso! Porém, o PDF original é muito grande para ser armazenado para download.");
+        console.warn("PDF muito grande (>750KB) para o banco de dados mesmo após otimização. Salvando apenas os dados.");
+        setUploadError("Dados extraídos com sucesso! Por segurança, o arquivo é muito grande e foi mantido apenas em nossa memória temporária.");
       }
 
       await addDoc(collection(db, "users", user.uid, "entries"), newEntry);
