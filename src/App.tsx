@@ -292,12 +292,49 @@ export default function App() {
     // Limpeza absoluta: apenas caracteres ASCII visíveis (remove aspas e caracteres invisíveis de controle)
     const apiKey = String(rawKey).replace(/[^\x21-\x7E]/g, "").replace(/['"]+/g, "").trim();
 
-    if (!apiKey || apiKey.length < 10) return null;
-    return new GoogleGenerativeAI(apiKey);
+    // Verificação de segurança: Chaves Gemini começam com AIzaSy e têm cerca de 39-44 caracteres
+    const isFormatValid = apiKey.startsWith("AIzaSy") && apiKey.length >= 35;
+
+    if (apiKey && isFormatValid) {
+      const masked = `${apiKey.substring(0, 10)}...${apiKey.substring(apiKey.length - 10)}`;
+      
+      if (!apiKeyStatus.detected || apiKeyStatus.length !== apiKey.length) {
+        setApiKeyStatus({ detected: true, length: apiKey.length, masked });
+        console.group("🚀 Gemini AI: Configuração Ativa");
+        console.log(`Chave: ${masked}`);
+        console.log(`Tamanho: ${apiKey.length} chars`);
+        console.log(`Dica: Se falhar, verifique se a 'Generative Language API' está habilitada no Google Cloud.`);
+        console.groupEnd();
+      }
+      return new GoogleGenerativeAI(apiKey);
+    }
+    
+    if (apiKey && !isFormatValid) {
+      console.error("❌ Erro: Chave Gemini com formato inválido (deve começar com AIzaSy).");
+    }
+    
+    return null;
+  };
+
+  // Função para injetar uma chave manualmente (útil para debug sem redeploy)
+  const manualApiKeySetup = () => {
+    const newKey = window.prompt("Cole sua nova Chave API Gemini aqui (Apenas para esta sessão):");
+    if (newKey) {
+      const cleaned = newKey.replace(/[^\x21-\x7E]/g, "").replace(/['"]+/g, "").trim();
+      if (cleaned.startsWith("AIzaSy")) {
+        // Força a atualização local
+        localStorage.setItem("TEMP_GEMINI_KEY", cleaned);
+        window.location.reload();
+      } else {
+        alert("Chave inválida! Deve começar com AIzaSy");
+      }
+    }
   };
 
   useEffect(() => {
-    const rawKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || "";
+    // Tenta pegar chave temporária do localStorage primeiro (para testes rápidos)
+    const tempKey = localStorage.getItem("TEMP_GEMINI_KEY");
+    const rawKey = tempKey || (import.meta as any).env?.VITE_GEMINI_API_KEY || "";
     const apiKey = String(rawKey).replace(/[^\x21-\x7E]/g, "").replace(/['"]+/g, "").trim();
 
     if (apiKey && apiKey.length >= 10 && !apiKeyStatus.detected) {
@@ -803,9 +840,19 @@ export default function App() {
               <h1 className="text-2xl sm:text-3xl font-black italic tracking-tighter leading-none flex items-center gap-2">
                 SOL<span className="text-emerald-500">AI</span>
                 {apiKeyStatus.detected ? (
-                  <span className="text-[8px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-black uppercase tracking-widest border border-emerald-500/20">AI Active</span>
+                  <button 
+                    onClick={manualApiKeySetup}
+                    className="text-[8px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-black uppercase tracking-widest border border-emerald-500/20 hover:bg-emerald-500/40 transition-colors"
+                  >
+                    AI Active
+                  </button>
                 ) : (
-                  <span className="text-[8px] bg-rose-500/20 text-rose-400 px-2 py-0.5 rounded-full font-black uppercase tracking-widest border border-rose-500/20 animate-pulse">AI Inactive</span>
+                  <button 
+                    onClick={manualApiKeySetup}
+                    className="text-[8px] bg-rose-500/20 text-rose-400 px-2 py-0.5 rounded-full font-black uppercase tracking-widest border border-rose-500/20 animate-pulse hover:bg-rose-500/40 transition-colors"
+                  >
+                    AI Inactive
+                  </button>
                 )}
               </h1>
               <div className="flex items-center gap-3 mt-1 sm:mt-2">
