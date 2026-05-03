@@ -24,6 +24,7 @@ import {
   Mail,
   FileUp
 } from "lucide-react";
+import { PDFDocument } from 'pdf-lib';
 import { 
   onAuthStateChanged, 
   signInWithPopup, 
@@ -628,12 +629,37 @@ export default function App() {
     setUploadError(null);
 
     try {
+      // Otimização Inteligente de PDF (Compactação via Corte de Páginas)
+      // Se o PDF for maior que 1.5MB, tentamos extrair apenas a primeira página (onde estão os dados da fatura)
+      let fileToProcess = file;
+      
+      if (file.size > 1.5 * 1024 * 1024 && file.type === "application/pdf") {
+        try {
+          const arrayBuffer = await file.arrayBuffer();
+          const pdfDoc = await PDFDocument.load(arrayBuffer);
+          const pageCount = pdfDoc.getPageCount();
+          
+          if (pageCount > 1) {
+            console.log(`Arquivo de ${(file.size / 1024 / 1024).toFixed(2)}MB detectado. Extraindo primeira página para otimização...`);
+            const newPdfDoc = await PDFDocument.create();
+            const [firstPage] = await newPdfDoc.copyPages(pdfDoc, [0]);
+            newPdfDoc.addPage(firstPage);
+            
+            const pdfBytes = await newPdfDoc.save();
+            fileToProcess = new File([pdfBytes], `optimized_${file.name}`, { type: "application/pdf" });
+            console.log(`Otimização concluída: ${(fileToProcess.size / 1024 / 1024).toFixed(2)}MB`);
+          }
+        } catch (pdfLimitErr) {
+          console.warn("Falha na otimização do PDF, prosseguindo com original:", pdfLimitErr);
+        }
+      }
+
       // 1. Read file as Base64
       const reader = new FileReader();
       const fileDataPromise = new Promise<string>((resolve, reject) => {
         reader.onload = () => resolve((reader.result as string).split(",")[1]);
         reader.onerror = reject;
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(fileToProcess);
       });
 
       const base64Data = await fileDataPromise;
