@@ -230,6 +230,7 @@ export default function App() {
   const [isUploading, setIsUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isDriveConnected, setIsDriveConnected] = useState(false);
   const [isChartExpanded, setIsChartExpanded] = useState(false);
@@ -627,6 +628,7 @@ export default function App() {
 
     setIsUploading(true);
     setUploadError(null);
+    setSuccessMessage(null);
 
     try {
       // Otimização Inteligente de PDF (Compactação via Corte de Páginas)
@@ -768,6 +770,13 @@ export default function App() {
       }
 
       await addDoc(collection(db, "users", user.uid, "entries"), newEntry);
+      
+      if (!uploadError) {
+        setSuccessMessage("Conta importada com sucesso!");
+        // Limpa a mensagem após 5 segundos
+        setTimeout(() => setSuccessMessage(null), 5000);
+      }
+      
       console.log("Lançamento salvo com sucesso.");
 
     } catch (err: any) {
@@ -1050,6 +1059,12 @@ export default function App() {
               {uploadError && (
                 <div className="text-rose-400 text-xs mt-6 font-bold px-4 py-3 bg-rose-500/10 border border-rose-500/20 rounded-xl animate-in fade-in slide-in-from-top-2 text-center">
                   {uploadError}
+                </div>
+              )}
+
+              {successMessage && (
+                <div className="text-emerald-400 text-xs mt-6 font-bold px-4 py-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl animate-in fade-in slide-in-from-top-2 text-center">
+                  {successMessage}
                 </div>
               )}
             </div>
