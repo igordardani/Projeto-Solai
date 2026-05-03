@@ -1048,8 +1048,7 @@ export default function App() {
               </div>
               
               {uploadError && (
-                <div className="flex items-center gap-3 text-rose-400 text-xs mt-6 font-bold px-4 py-3 bg-rose-500/10 border border-rose-500/20 rounded-xl animate-in fade-in slide-in-from-top-2">
-                  <AlertCircle size={16} />
+                <div className="text-rose-400 text-xs mt-6 font-bold px-4 py-3 bg-rose-500/10 border border-rose-500/20 rounded-xl animate-in fade-in slide-in-from-top-2 text-center">
                   {uploadError}
                 </div>
               )}
