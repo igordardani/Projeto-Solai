@@ -290,19 +290,36 @@ export default function App() {
     // No Vite/Vercel (Client-side), variáveis PRECISAM começar com VITE_ para serem expostas
     const rawKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || '';
     
-    // Limpeza RADICAL: remove aspas, espaços, quebras de linha e qualquer caractere não-ASCII/invisível
+    // Limpeza RADICAL: remove aspas, espaços, quebras de linha e qualquer caractere invisível
     const apiKey = rawKey ? String(rawKey).replace(/['"]+/g, '').replace(/[^\x21-\x7E]/g, '').trim() : "";
 
     if (apiKey && !aiRef.current) {
-      const masked = `${apiKey.substring(0, 6)}...${apiKey.substring(apiKey.length - 4)}`;
-      aiRef.current = new GoogleGenerativeAI(apiKey);
-      
-      if (!apiKeyStatus.detected) {
-        setApiKeyStatus({ detected: true, length: apiKey.length, masked });
-        console.log(`🔑 Gemini Key Detectada no Client: ${masked} (Total Chars: ${apiKey.length})`);
+      // Verifica se o usuário não colou o texto informativo por engano
+      if (apiKey.includes("Free_Tier") || apiKey.includes("API_KEY")) {
+        console.error("❌ ERRO: A variável VITE_GEMINI_API_KEY contém texto de exemplo e não a chave real.");
+      } else {
+        const masked = `${apiKey.substring(0, 6)}...${apiKey.substring(apiKey.length - 4)}`;
+        aiRef.current = new GoogleGenerativeAI(apiKey);
+        
+        if (!apiKeyStatus.detected) {
+          setApiKeyStatus({ detected: true, length: apiKey.length, masked });
+          console.log(`🔑 Gemini Key Detectada no Client: ${masked} (Total Chars: ${apiKey.length})`);
+        }
       }
     }
   }
+
+  // Função auxiliar para formatar erros da Gemini
+  const getGeminiErrorMessage = (err: any) => {
+    const errorStr = String(err);
+    if (errorStr.includes("API key not valid")) {
+      return `Chave API Inválida (Detectada: ${apiKeyStatus.masked}). Verifique no Vercel e faça REDEPLOY.`;
+    }
+    if (errorStr.includes("Quota exceeded")) {
+      return "Limite de uso da AI excedido. Tente novamente em instantes.";
+    }
+    return "Erro ao processar com IA. Tente novamente.";
+  };
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
@@ -622,13 +639,9 @@ export default function App() {
 
     } catch (err: any) {
       console.error("Erro no processamento:", err);
-      let msg = "Erro ao processar PDF";
-      if (err.message?.includes("API key")) {
-        msg = "Chave API do Gemini inválida ou não configurada.";
-      } else if (err.message?.includes("JSON")) {
+      let msg = getGeminiErrorMessage(err);
+      if (msg === "Erro ao processar com IA. Tente novamente." && err.message?.includes("JSON")) {
         msg = "A IA retornou um formato inválido. Tente novamente.";
-      } else {
-        msg = err.message || msg;
       }
       setUploadError(msg);
     } finally {
