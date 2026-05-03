@@ -290,20 +290,25 @@ export default function App() {
     // No Vite/Vercel (Client-side), variáveis PRECISAM começar com VITE_ para serem expostas
     const rawKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || '';
     
-    // Limpeza RADICAL: remove aspas, espaços, quebras de linha e qualquer caractere invisível
-    const apiKey = rawKey ? String(rawKey).replace(/['"]+/g, '').replace(/[^\x21-\x7E]/g, '').trim() : "";
+    // Limpeza: remove aspas e espaços (comum erro ao colar no Vercel)
+    const apiKey = rawKey ? String(rawKey).replace(/['"]+/g, '').trim() : "";
 
     if (apiKey && !aiRef.current) {
       // Verifica se o usuário não colou o texto informativo por engano
-      if (apiKey.includes("Free_Tier") || apiKey.includes("API_KEY")) {
-        console.error("❌ ERRO: A variável VITE_GEMINI_API_KEY contém texto de exemplo e não a chave real.");
+      if (apiKey.includes("Free_Tier") || apiKey.includes("API_KEY") || apiKey.length < 10) {
+        console.error("❌ ERRO: A variável VITE_GEMINI_API_KEY parece inválida ou incompleta.");
       } else {
-        const masked = `${apiKey.substring(0, 6)}...${apiKey.substring(apiKey.length - 4)}`;
+        // Log detalhado para conferência visual
+        const masked = `${apiKey.substring(0, 10)}...${apiKey.substring(apiKey.length - 10)}`;
         aiRef.current = new GoogleGenerativeAI(apiKey);
         
-        if (!apiKeyStatus.detected) {
+        if (!apiKeyStatus.detected || apiKeyStatus.length !== apiKey.length) {
           setApiKeyStatus({ detected: true, length: apiKey.length, masked });
-          console.log(`🔑 Gemini Key Detectada no Client: ${masked} (Total Chars: ${apiKey.length})`);
+          console.group("🚀 Gemini AI: Verificação de Configuração");
+          console.log(`Chave atual: ${masked}`);
+          console.log(`Tamanho detectado: ${apiKey.length} caracteres`);
+          console.log(`Aviso: Se este tamanho for diferente de 39, faça um REDEPLOY no Vercel.`);
+          console.groupEnd();
         }
       }
     }
@@ -313,12 +318,12 @@ export default function App() {
   const getGeminiErrorMessage = (err: any) => {
     const errorStr = String(err);
     if (errorStr.includes("API key not valid")) {
-      return `Chave API Inválida (Detectada: ${apiKeyStatus.masked}). Verifique no Vercel e faça REDEPLOY.`;
+      return `Chave Inválida (${apiKeyStatus.length} chars lidos). Você salvou no Vercel mas não fez o REDEPLOY (obrigatório).`;
     }
     if (errorStr.includes("Quota exceeded")) {
-      return "Limite de uso da AI excedido. Tente novamente em instantes.";
+      return "Limite da AI (Free) excedido. Tente novamente em alguns minutos.";
     }
-    return "Erro ao processar com IA. Tente novamente.";
+    return "Erro na AI. Verifique se o Redeploy no Vercel foi concluído.";
   };
 
   useEffect(() => {
@@ -784,7 +789,7 @@ export default function App() {
               <div className="flex items-center gap-3 mt-1 sm:mt-2">
                 <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
                 <p className="text-[8px] sm:text-[10px] text-slate-500 font-black uppercase tracking-[0.3em] sm:tracking-[0.4em] italic leading-none truncate max-w-[150px] sm:max-w-none">
-                  Yield Dashboard • {user.displayName || user.email} {apiKeyStatus.detected && <span className="opacity-40 ml-1">({apiKeyStatus.masked})</span>}
+                  Yield Dashboard • {user.displayName || user.email} {apiKeyStatus.detected && <span className="opacity-40 ml-1 normal-case font-mono bg-slate-800 px-1 rounded">({apiKeyStatus.masked} | {apiKeyStatus.length} chars)</span>}
                 </p>
               </div>
             </div>
