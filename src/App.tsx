@@ -282,7 +282,10 @@ export default function App() {
   const [availableModels, setAvailableModels] = useState<string[]>(["gemini-1.5-flash", "gemini-2.0-flash", "gemini-2.0-pro"]);
   const [selectedModel, setSelectedModel] = useState("gemini-2.0-flash");
   const [apiKeyStatus, setApiKeyStatus] = useState<{ detected: boolean, length: number, masked: string }>({ 
-
+    detected: false, 
+    length: 0, 
+    masked: "" 
+  });
   // Função para obter a instância da IA com a chave limpa
   const getGenerativeAI = () => {
     const tempKey = localStorage.getItem("TEMP_GEMINI_KEY");
