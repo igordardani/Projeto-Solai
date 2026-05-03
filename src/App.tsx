@@ -278,88 +278,65 @@ export default function App() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Initialize Gemini AI
+  const [isDiagnosticOpen, setIsDiagnosticOpen] = useState(false);
   const [apiKeyStatus, setApiKeyStatus] = useState<{ detected: boolean, length: number, masked: string }>({ 
     detected: false, 
     length: 0, 
     masked: '' 
   });
 
-  // Função para obter a instância da IA com a chave limpa e atualizada do ambiente
+  // Função para obter a instância da IA com a chave limpa
   const getGenerativeAI = () => {
-    // No Vite/Vercel (Client-side), variáveis PRECISAM começar com VITE_ para serem expostas
-    const rawKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || "";
-    // Limpeza absoluta: apenas caracteres ASCII visíveis (remove aspas e caracteres invisíveis de controle)
-    const apiKey = String(rawKey).replace(/[^\x21-\x7E]/g, "").replace(/['"]+/g, "").trim();
-
-    // Verificação de segurança: Chaves Gemini começam com AIzaSy e têm cerca de 39-44 caracteres
-    const isFormatValid = apiKey.startsWith("AIzaSy") && apiKey.length >= 35;
-
-    if (apiKey && isFormatValid) {
-      const masked = `${apiKey.substring(0, 10)}...${apiKey.substring(apiKey.length - 10)}`;
-      
-      if (!apiKeyStatus.detected || apiKeyStatus.length !== apiKey.length) {
-        setApiKeyStatus({ detected: true, length: apiKey.length, masked });
-        console.group("🚀 Gemini AI: Configuração Ativa");
-        console.log(`Chave: ${masked}`);
-        console.log(`Tamanho: ${apiKey.length} chars`);
-        console.log(`Dica: Se falhar, verifique se a 'Generative Language API' está habilitada no Google Cloud.`);
-        console.groupEnd();
-      }
-      return new GoogleGenerativeAI(apiKey);
-    }
-    
-    if (apiKey && !isFormatValid) {
-      console.error("❌ Erro: Chave Gemini com formato inválido (deve começar com AIzaSy).");
-    }
-    
-    return null;
-  };
-
-  // Função para injetar uma chave manualmente (útil para debug sem redeploy)
-  const manualApiKeySetup = () => {
-    const newKey = window.prompt("Cole sua nova Chave API Gemini aqui (Apenas para esta sessão):");
-    if (newKey) {
-      const cleaned = newKey.replace(/[^\x21-\x7E]/g, "").replace(/['"]+/g, "").trim();
-      if (cleaned.startsWith("AIzaSy")) {
-        // Força a atualização local
-        localStorage.setItem("TEMP_GEMINI_KEY", cleaned);
-        window.location.reload();
-      } else {
-        alert("Chave inválida! Deve começar com AIzaSy");
-      }
-    }
-  };
-
-  useEffect(() => {
-    // Tenta pegar chave temporária do localStorage primeiro (para testes rápidos)
     const tempKey = localStorage.getItem("TEMP_GEMINI_KEY");
     const rawKey = tempKey || (import.meta as any).env?.VITE_GEMINI_API_KEY || "";
     const apiKey = String(rawKey).replace(/[^\x21-\x7E]/g, "").replace(/['"]+/g, "").trim();
 
-    if (apiKey && apiKey.length >= 10 && !apiKeyStatus.detected) {
-      const masked = `${apiKey.substring(0, 10)}...${apiKey.substring(apiKey.length - 10)}`;
-      setApiKeyStatus({ detected: true, length: apiKey.length, masked });
-      console.log(`🚀 Gemini AI: Chave verificada (${apiKey.length} caracteres).`);
+    if (apiKey && apiKey.startsWith("AIzaSy") && apiKey.length >= 35) {
+      return new GoogleGenerativeAI(apiKey);
     }
-  }, [apiKeyStatus.detected]);
+    return null;
+  };
 
-  // Função para teste rápido de AI
-  const testAIIntegration = async () => {
-    try {
-      const ai = getGenerativeAI();
-      if (!ai) {
-        setUploadError("Chave não configurada no ambiente.");
-        return;
+  // Efeito para atualizar o status visual da chave
+  useEffect(() => {
+    const tempKey = localStorage.getItem("TEMP_GEMINI_KEY");
+    const rawKey = tempKey || (import.meta as any).env?.VITE_GEMINI_API_KEY || "";
+    const apiKey = String(rawKey).replace(/[^\x21-\x7E]/g, "").replace(/['"]+/g, "").trim();
+
+    if (apiKey && apiKey.length >= 10) {
+      const masked = `${apiKey.substring(0, 8)}...${apiKey.substring(apiKey.length - 8)}`;
+      if (apiKeyStatus.masked !== masked) {
+        setApiKeyStatus({ detected: true, length: apiKey.length, masked });
       }
-      console.log("Iniciando teste de conectividade...");
+    } else if (apiKeyStatus.detected) {
+      setApiKeyStatus({ detected: false, length: 0, masked: "" });
+    }
+  }, [entries]); // Atualiza quando mudar algo no app
+
+  // Função para teste de AI
+  const testAIIntegration = async (targetKey?: string) => {
+    const raw = targetKey || localStorage.getItem("TEMP_GEMINI_KEY") || (import.meta as any).env?.VITE_GEMINI_API_KEY || "";
+    const apiKey = String(raw).replace(/[^\x21-\x7E]/g, "").replace(/['"]+/g, "").trim();
+
+    if (!apiKey || !apiKey.startsWith("AIzaSy")) {
+      alert("❌ Chave inválida ou não encontrada.");
+      return;
+    }
+
+    try {
+      const ai = new GoogleGenerativeAI(apiKey);
       const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
-      const result = await model.generateContent("Diga apenas 'Conexão OK'");
+      const result = await model.generateContent("Diga 'OK'");
       const response = await result.response;
-      alert(`Sucesso! Resposta da AI: ${response.text()}`);
+      alert(`✅ SUCESSO! A IA respondeu: "${response.text()}"\nSua configuração está perfeita.`);
     } catch (err: any) {
-      console.error("Erro no teste de AI:", err);
-      alert(`Falha no Teste: ${err.message || 'Erro desconhecido'}`);
+      console.error("Erro no teste:", err);
+      const msg = String(err);
+      if (msg.includes("API key not valid")) {
+        alert("❌ ERRO: Chave inválida ou restrita no Google Cloud.\n\nDICA: Crie uma nova chave em aistudio.google.com em vez do Google Cloud Console.");
+      } else {
+        alert(`❌ FALHA: ${err.message || 'Erro de conexão'}`);
+      }
     }
   };
 
@@ -367,7 +344,7 @@ export default function App() {
   const getGeminiErrorMessage = (err: any) => {
     const errorStr = String(err);
     if (errorStr.includes("API key not valid")) {
-      return `Chave Inválida (${apiKeyStatus.length} chars lidos). Você salvou no Vercel mas não fez o REDEPLOY (obrigatório).`;
+      return `Chave Inválida ou Restrita. No Google Cloud Console, altere a chave para 'Não restringir chave'.`;
     }
     if (errorStr.includes("Quota exceeded")) {
       return "Limite da AI (Free) excedido. Tente novamente em alguns minutos.";
@@ -827,12 +804,8 @@ export default function App() {
           <div className="flex items-center gap-4 sm:gap-6 group cursor-default self-start lg:self-center">
             <div 
               className="w-12 h-12 sm:w-16 sm:h-16 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-emerald-500/40 rotate-12 group-hover:rotate-0 transition-all duration-700 cursor-help"
-              onClick={() => {
-                if (window.confirm("Deseja testar a conexão com a Gemini AI agora?")) {
-                  testAIIntegration();
-                }
-              }}
-              title="Clique para testar a AI"
+              onClick={() => setIsDiagnosticOpen(true)}
+              title="Clique para diagnóstico da AI"
             >
               <Sun className="text-white w-6 h-6 sm:w-8 sm:h-8" />
             </div>
@@ -1633,7 +1606,72 @@ export default function App() {
         </div>
       )}
 
-      {/* Settings Modal */}
+      {/* Modal de Diagnóstico de IA */}
+      {isDiagnosticOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <Card className="w-full max-w-lg p-8 border-emerald-500/30">
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <h2 className="text-2xl font-black italic text-white tracking-tighter">DIAGNÓSTICO SOLAI</h2>
+                <p className="text-slate-400 text-[10px] uppercase font-bold tracking-widest mt-1">Status da Integração Gemini</p>
+              </div>
+              <button onClick={() => setIsDiagnosticOpen(false)} className="p-2 hover:bg-slate-800 rounded-xl transition-colors">
+                <X className="text-slate-400" />
+              </button>
+            </div>
+
+            <div className="space-y-6">
+              <div className="p-4 bg-slate-950/50 rounded-2xl border border-slate-800">
+                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Chave Detectada</span>
+                <div className="flex items-center gap-3 mt-2">
+                  <div className={cn("w-3 h-3 rounded-full animate-pulse", apiKeyStatus.detected ? "bg-emerald-500" : "bg-rose-500")} />
+                  <code className="text-xs text-emerald-400 font-mono break-all">
+                    {apiKeyStatus.detected ? apiKeyStatus.masked : "Nenhuma chave encontrada no ambiente (Vercel)"}
+                  </code>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Forçar Nova Chave (Local)</label>
+                <input 
+                  type="password"
+                  placeholder="Cole aqui: AIzaSy..."
+                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white text-sm focus:border-emerald-500 outline-none transition-all"
+                  onChange={(e) => {
+                    const val = e.target.value.trim();
+                    if (val.startsWith("AIzaSy")) {
+                      localStorage.setItem("TEMP_GEMINI_KEY", val);
+                    }
+                  }}
+                />
+                <p className="text-[9px] text-slate-500 leading-relaxed">
+                  Dica: Use isso para testar chaves rapidamente. A chave fica salva apenas no seu navegador.
+                </p>
+              </div>
+
+              <div className="flex gap-4 pt-4">
+                <Button onClick={() => testAIIntegration()} className="flex-1">Testar Conexão</Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    localStorage.removeItem("TEMP_GEMINI_KEY");
+                    window.location.reload();
+                  }}
+                  className="flex-1"
+                >
+                  Resetar
+                </Button>
+              </div>
+
+              <div className="p-4 bg-blue-500/5 rounded-2xl border border-blue-500/10">
+                <p className="text-[10px] text-blue-400 font-medium leading-relaxed italic">
+                  "Para evitar erros de restrição, prefira criar a chave em <a href="https://aistudio.google.com/app/apikey" target="_blank" className="underline font-bold">aistudio.google.com</a> em vez do Google Cloud Console."
+                </p>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
       {isSettingsOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 sm:p-10 pointer-events-none">
           <div className="absolute inset-0 bg-[#05080c]/90 backdrop-blur-3xl animate-in fade-in duration-500 pointer-events-auto" onClick={() => setIsSettingsOpen(false)} />
