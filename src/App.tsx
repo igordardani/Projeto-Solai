@@ -279,40 +279,33 @@ export default function App() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Initialize Gemini AI
-  const aiRef = useRef<any>(null);
   const [apiKeyStatus, setApiKeyStatus] = useState<{ detected: boolean, length: number, masked: string }>({ 
     detected: false, 
     length: 0, 
     masked: '' 
   });
 
-  if (!aiRef.current) {
+  // Função para obter a instância da IA com a chave limpa e atualizada do ambiente
+  const getGenerativeAI = () => {
     // No Vite/Vercel (Client-side), variáveis PRECISAM começar com VITE_ para serem expostas
-    const rawKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || '';
-    
-    // Limpeza: remove aspas e espaços (comum erro ao colar no Vercel)
-    const apiKey = rawKey ? String(rawKey).replace(/['"]+/g, '').trim() : "";
+    const rawKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || "";
+    // Limpeza absoluta: apenas caracteres ASCII visíveis (remove aspas e caracteres invisíveis de controle)
+    const apiKey = String(rawKey).replace(/[^\x21-\x7E]/g, "").replace(/['"]+/g, "").trim();
 
-    if (apiKey && !aiRef.current) {
-      // Verifica se o usuário não colou o texto informativo por engano
-      if (apiKey.includes("Free_Tier") || apiKey.includes("API_KEY") || apiKey.length < 10) {
-        console.error("❌ ERRO: A variável VITE_GEMINI_API_KEY parece inválida ou incompleta.");
-      } else {
-        // Log detalhado para conferência visual
-        const masked = `${apiKey.substring(0, 10)}...${apiKey.substring(apiKey.length - 10)}`;
-        aiRef.current = new GoogleGenerativeAI(apiKey);
-        
-        if (!apiKeyStatus.detected || apiKeyStatus.length !== apiKey.length) {
-          setApiKeyStatus({ detected: true, length: apiKey.length, masked });
-          console.group("🚀 Gemini AI: Verificação de Configuração");
-          console.log(`Chave atual: ${masked}`);
-          console.log(`Tamanho detectado: ${apiKey.length} caracteres`);
-          console.log(`Aviso: Se este tamanho for diferente de 39, faça um REDEPLOY no Vercel.`);
-          console.groupEnd();
-        }
-      }
+    if (!apiKey || apiKey.length < 10) return null;
+    return new GoogleGenerativeAI(apiKey);
+  };
+
+  useEffect(() => {
+    const rawKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || "";
+    const apiKey = String(rawKey).replace(/[^\x21-\x7E]/g, "").replace(/['"]+/g, "").trim();
+
+    if (apiKey && apiKey.length >= 10 && !apiKeyStatus.detected) {
+      const masked = `${apiKey.substring(0, 10)}...${apiKey.substring(apiKey.length - 10)}`;
+      setApiKeyStatus({ detected: true, length: apiKey.length, masked });
+      console.log(`🚀 Gemini AI: Chave verificada (${apiKey.length} caracteres).`);
     }
-  }
+  }, [apiKeyStatus.detected]);
 
   // Função auxiliar para formatar erros da Gemini
   const getGeminiErrorMessage = (err: any) => {
@@ -539,7 +532,9 @@ export default function App() {
       const base64Data = await fileDataPromise;
 
       // 2. Call Gemini API from Frontend
-      const ai = aiRef.current;
+      console.log("Iniciando análise com AI...");
+      const aiInstance = getGenerativeAI();
+      if (!aiInstance) throw new Error("API key not valid");
       
       const prompt = `
         Você é um especialista em faturas de energia solar da Energisa Brasil.
@@ -559,7 +554,7 @@ export default function App() {
       `;
 
       console.log("Chamando Gemini no frontend...");
-      const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const model = aiInstance.getGenerativeModel({ model: "gemini-1.5-flash" });
 
       const result = await model.generateContent([
         { text: prompt },
