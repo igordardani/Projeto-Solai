@@ -278,12 +278,10 @@ export default function App() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [isDiagnosticOpen, setIsDiagnosticOpen] = useState(false);  const [selectedModel, setSelectedModel] = useState("gemini-1.5-flash");
+  const [isDiagnosticOpen, setIsDiagnosticOpen] = useState(false);
+  const [availableModels, setAvailableModels] = useState<string[]>(["gemini-1.5-flash", "gemini-2.0-flash", "gemini-2.0-pro"]);
+  const [selectedModel, setSelectedModel] = useState("gemini-2.0-flash");
   const [apiKeyStatus, setApiKeyStatus] = useState<{ detected: boolean, length: number, masked: string }>({ 
-    detected: false, 
-    length: 0, 
-    masked: "" 
-  });
 
   // Função para obter a instância da IA com a chave limpa
   const getGenerativeAI = () => {
@@ -365,8 +363,12 @@ export default function App() {
       const data = await response.json();
       
       if (data.models) {
-        const names = data.models.map((m: any) => m.name.replace("models/", "")).join("\n");
-        alert("✅ Modelos que sua chave consegue acessar:\n\n" + names);
+        const names = data.models.map((m: any) => m.name.replace("models/", ""));
+        setAvailableModels(names);
+        if (names.length > 0 && !names.includes(selectedModel)) {
+          setSelectedModel(names[0]);
+        }
+        alert("✅ Lista de modelos atualizada com sucesso no seletor abaixo!");
       } else {
         alert("❌ A chave foi aceita, mas não retornou nenhum modelo. A API provavelmente está desativada no seu projeto.");
       }
@@ -1673,10 +1675,9 @@ export default function App() {
                   onChange={(e) => setSelectedModel(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white text-sm focus:border-emerald-500 outline-none transition-all"
                 >
-                  <option value="gemini-1.5-flash">gemini-1.5-flash (Padrão)</option>
-                  <option value="gemini-1.5-flash-latest">gemini-1.5-flash-latest</option>
-                  <option value="gemini-1.5-flash-8b">gemini-1.5-flash-8b</option>
-                  <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+                  {availableModels.map(m => (
+                    <option key={m} value={m}>{m}</option>
+                  ))}
                 </select>
               </div>
 
