@@ -326,20 +326,52 @@ export default function App() {
     try {
       const ai = new GoogleGenerativeAI(apiKey);
       console.log(`Testando modelo: ${selectedModel}`);
-      const model = ai.getGenerativeModel({ model: selectedModel });
+      
+      // O SDK geralmente adiciona 'models/' automaticamente, mas vamos garantir o formato limpo
+      const modelId = selectedModel.includes("/") ? selectedModel.split("/").pop()! : selectedModel;
+      const model = ai.getGenerativeModel({ model: modelId });
+      
       const result = await model.generateContent("Diga 'OK'");
       const response = await result.response;
-      alert(`✅ SUCESSO! O modelo ${selectedModel} respondeu: "${response.text()}"\nSua configuração está perfeita.`);
+      alert(`✅ SUCESSO! O modelo ${modelId} respondeu: "${response.text()}"\nSua configuração está perfeita.`);
     } catch (err: any) {
       console.error("Erro no teste:", err);
       const msg = String(err);
+      
       if (msg.includes("API key not valid")) {
-        alert("❌ ERRO: Chave inválida ou restrita no Google Cloud.");
+        alert("❌ ERRO: Chave inválida ou recusada pelo Google.\n\nDICA: Verifique se não há espaços extras ao colar.");
       } else if (msg.includes("404") || msg.includes("not found")) {
-        alert(`❌ ERRO 404: O modelo '${selectedModel}' não foi encontrado para esta chave.\nTente selecionar outro modelo na lista (como gemini-1.5-flash-latest).`);
+        alert(`❌ ERRO 404: Modelo não encontrado.\n\nIsso geralmente significa que a 'Generative Language API' NÃO está habilitada no seu projeto do Google Cloud. Vá em 'Biblioteca' e ative-a.`);
+      } else if (msg.includes("403") || msg.includes("permission")) {
+        alert("❌ ERRO 403: Sem permissão. Sua chave pode ter restrições de IP ou Referrer ativadas.");
       } else {
         alert(`❌ FALHA: ${err.message || 'Erro de conexão'}`);
       }
+    }
+  };
+
+  // Função para listar o que essa chave pode ver
+  const listAvailableModels = async () => {
+    const raw = localStorage.getItem("TEMP_GEMINI_KEY") || (import.meta as any).env?.VITE_GEMINI_API_KEY || "";
+    const apiKey = String(raw).replace(/[^\x21-\x7E]/g, "").replace(/['"]+/g, "").trim();
+
+    if (!apiKey) {
+      alert("Nenhuma chave configurada.");
+      return;
+    }
+
+    try {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+      const data = await response.json();
+      
+      if (data.models) {
+        const names = data.models.map((m: any) => m.name.replace("models/", "")).join("\n");
+        alert("✅ Modelos que sua chave consegue acessar:\n\n" + names);
+      } else {
+        alert("❌ A chave foi aceita, mas não retornou nenhum modelo. A API provavelmente está desativada no seu projeto.");
+      }
+    } catch (err) {
+      alert("Erro ao consultar modelos da chave.");
     }
   };
 
@@ -1666,15 +1698,22 @@ export default function App() {
                 </p>
               </div>
 
-              <div className="flex gap-4 pt-4">
-                <Button onClick={() => testAIIntegration()} className="flex-1">Testar Conexão</Button>
+              <div className="flex flex-wrap gap-4 pt-4">
+                <Button onClick={() => testAIIntegration()} className="flex-1 min-w-[140px]">Testar Conexão</Button>
+                <Button 
+                  variant="outline" 
+                  onClick={listAvailableModels}
+                  className="flex-1 min-w-[140px] border-blue-500/30 text-blue-400"
+                >
+                  Listar Modelos
+                </Button>
                 <Button 
                   variant="outline" 
                   onClick={() => {
                     localStorage.removeItem("TEMP_GEMINI_KEY");
                     window.location.reload();
                   }}
-                  className="flex-1"
+                  className="flex-1 min-w-[140px]"
                 >
                   Resetar
                 </Button>
