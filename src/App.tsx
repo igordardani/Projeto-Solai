@@ -307,6 +307,25 @@ export default function App() {
     }
   }, [apiKeyStatus.detected]);
 
+  // Função para teste rápido de AI
+  const testAIIntegration = async () => {
+    try {
+      const ai = getGenerativeAI();
+      if (!ai) {
+        setUploadError("Chave não configurada no ambiente.");
+        return;
+      }
+      console.log("Iniciando teste de conectividade...");
+      const model = ai.getGenerativeModel({ model: "gemini-1.5-flash" });
+      const result = await model.generateContent("Diga apenas 'Conexão OK'");
+      const response = await result.response;
+      alert(`Sucesso! Resposta da AI: ${response.text()}`);
+    } catch (err: any) {
+      console.error("Erro no teste de AI:", err);
+      alert(`Falha no Teste: ${err.message || 'Erro desconhecido'}`);
+    }
+  };
+
   // Função auxiliar para formatar erros da Gemini
   const getGeminiErrorMessage = (err: any) => {
     const errorStr = String(err);
@@ -769,7 +788,15 @@ export default function App() {
       <header className="sticky top-0 z-50 bg-[#05080c]/90 backdrop-blur-3xl border-b border-slate-900 shadow-2xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-8 py-4 flex flex-col justify-between items-center lg:flex-row gap-6">
           <div className="flex items-center gap-4 sm:gap-6 group cursor-default self-start lg:self-center">
-            <div className="w-12 h-12 sm:w-16 sm:h-16 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-emerald-500/40 rotate-12 group-hover:rotate-0 transition-all duration-700">
+            <div 
+              className="w-12 h-12 sm:w-16 sm:h-16 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-2xl shadow-emerald-500/40 rotate-12 group-hover:rotate-0 transition-all duration-700 cursor-help"
+              onClick={() => {
+                if (window.confirm("Deseja testar a conexão com a Gemini AI agora?")) {
+                  testAIIntegration();
+                }
+              }}
+              title="Clique para testar a AI"
+            >
               <Sun className="text-white w-6 h-6 sm:w-8 sm:h-8" />
             </div>
             <div>
