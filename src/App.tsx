@@ -814,14 +814,14 @@ export default function App() {
                 SOL<span className="text-emerald-500">AI</span>
                 {apiKeyStatus.detected ? (
                   <button 
-                    onClick={manualApiKeySetup}
+                    onClick={() => setIsDiagnosticOpen(true)}
                     className="text-[8px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-black uppercase tracking-widest border border-emerald-500/20 hover:bg-emerald-500/40 transition-colors"
                   >
                     AI Active
                   </button>
                 ) : (
                   <button 
-                    onClick={manualApiKeySetup}
+                    onClick={() => setIsDiagnosticOpen(true)}
                     className="text-[8px] bg-rose-500/20 text-rose-400 px-2 py-0.5 rounded-full font-black uppercase tracking-widest border border-rose-500/20 animate-pulse hover:bg-rose-500/40 transition-colors"
                   >
                     AI Inactive
