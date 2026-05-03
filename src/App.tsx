@@ -391,16 +391,39 @@ export default function App() {
     }
   };
 
-  // Função auxiliar para formatar erros da Gemini
+  // Função auxiliar para formatar erros da Gemini e do Sistema
   const getGeminiErrorMessage = (err: any) => {
-    const errorStr = String(err);
-    if (errorStr.includes("API key not valid")) {
-      return `Chave Inválida ou Restrita. No Google Cloud Console, altere a chave para 'Não restringir chave'.`;
+    // Extrai a mensagem bruta
+    let errorStr = "";
+    if (typeof err === "string") {
+      errorStr = err;
+    } else if (err && err.message) {
+      errorStr = err.message;
+    } else {
+      errorStr = String(err);
     }
-    if (errorStr.includes("Quota exceeded")) {
-      return "Limite da AI (Free) excedido. Tente novamente em alguns minutos.";
+    
+    // Limpeza de prefixos técnicos comuns do JavaScript/Gemini
+    const cleanMsg = errorStr
+      .replace(/^Error:\s*/i, "")
+      .replace(/^\[GoogleGenerativeAI Error\]:\s*/i, "")
+      .replace(/\s*\(400\)\s*$/, "")
+      .trim();
+
+    // Se for um erro específico de validação (negócio), retorna ele mesmo já limpo
+    if (cleanMsg.includes("Atenção:") || cleanMsg.includes("Já existe") || cleanMsg.includes("período")) {
+      return cleanMsg;
     }
-    return "Erro na AI. Verifique se o Redeploy no Vercel foi concluído.";
+
+    if (cleanMsg.toLowerCase().includes("api key not valid")) {
+      return `Chave de API inválida ou recusada. Verifique se a chave no Vercel está correta e ativa.`;
+    }
+    if (cleanMsg.toLowerCase().includes("quota exceeded")) {
+      return "Limite de uso da AI (Cota Gratuita) excedido. Tente novamente em 1 minuto.";
+    }
+    
+    // Fallback: Retorna a mensagem limpa ou uma padrão se estiver vazia
+    return cleanMsg || "Ocorreu um erro inesperado no processamento.";
   };
 
   useEffect(() => {
@@ -724,8 +747,8 @@ export default function App() {
     } catch (err: any) {
       console.error("Erro no processamento:", err);
       let msg = getGeminiErrorMessage(err);
-      if (msg === "Erro ao processar com IA. Tente novamente." && err.message?.includes("JSON")) {
-        msg = "A IA retornou um formato inválido. Tente novamente.";
+      if (msg.includes("unexpected") && (err.message?.includes("JSON") || String(err).includes("JSON"))) {
+        msg = "A IA retornou um formato de dados inválido. Tente novamente com outro arquivo.";
       }
       setUploadError(msg);
     } finally {
