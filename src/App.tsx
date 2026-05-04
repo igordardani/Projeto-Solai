@@ -340,13 +340,26 @@ export default function App() {
   // Função para obter a instância da IA com a chave limpa
   const getGenerativeAI = () => {
     const tempKey = localStorage.getItem("TEMP_GEMINI_KEY");
-    const rawKey = tempKey || (import.meta as any).env?.VITE_GEMINI_API_KEY || "";
+    // @ts-ignore - process.env is injected by the platform
+    const envKey = typeof process !== 'undefined' ? process.env.GEMINI_API_KEY : (import.meta as any).env?.VITE_GEMINI_API_KEY;
+    const rawKey = tempKey || envKey || "";
     const apiKey = String(rawKey).replace(/[^\x21-\x7E]/g, "").replace(/['"]+/g, "").trim();
 
-    if (apiKey && apiKey.startsWith("AIzaSy") && apiKey.length >= 35) {
-      return new GoogleGenerativeAI(apiKey);
+    if (!apiKey) {
+      console.warn("SOLAI: Nenhuma API Key do Gemini encontrada no ambiente.");
+      return null;
     }
-    return null;
+
+    if (!apiKey.startsWith("AIzaSy")) {
+      console.error("SOLAI: Formato de API Key inválido detectado.");
+    }
+
+    try {
+      return new GoogleGenerativeAI(apiKey);
+    } catch (e) {
+      console.error("SOLAI: Erro ao instanciar GoogleGenerativeAI:", e);
+      return null;
+    }
   };
 
   // Efeito para atualizar o status visual da chave
